@@ -1,0 +1,17 @@
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\bin\Debug\SharpGL.exe.config
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\bin\Debug\SharpGL.exe
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\bin\Debug\SharpGL.pdb
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\bin\Debug\SharpGL.dll
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\bin\Debug\SharpGL.SceneGraph.dll
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\bin\Debug\SharpGL.WinForms.dll
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\bin\Debug\SharpGL.xml
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\bin\Debug\SharpGL.SceneGraph.pdb
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\bin\Debug\SharpGL.SceneGraph.xml
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\bin\Debug\SharpGL.WinForms.pdb
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\bin\Debug\SharpGL.WinForms.xml
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\obj\Debug\SharpGL.csprojResolveAssemblyReference.cache
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\obj\Debug\SharpGL.Form1.resources
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\obj\Debug\SharpGL.Properties.Resources.resources
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\obj\Debug\SharpGL.csproj.GenerateResource.Cache
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\obj\Debug\SharpGL.exe
+E:\K16\Junior\Computer graphic\SharpGL\SharpGL\obj\Debug\SharpGL.pdb
