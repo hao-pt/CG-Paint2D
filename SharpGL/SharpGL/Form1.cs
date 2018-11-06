@@ -28,12 +28,12 @@ namespace SharpGL
 
 		private void openGLControl1_Load(object sender, EventArgs e)
 		{
-
+			
 		}
 
 		private void Form1_Load(object sender, EventArgs e)
 		{
-
+			
 		}
 
 		private void bt_Palette_Click(object sender, EventArgs e)
@@ -48,9 +48,20 @@ namespace SharpGL
 		{
 			shShape = 0; // Nguoi dung chon ve duong thang
 		}
-
 		
+		// Nguoi dung chon chuc nang ve hinh chu nhat
+		private void bt_Rec_Click(object sender, EventArgs e)
+		{
+			shShape = 2;
+		}
 
+		// Nguoi dung chon chuc nang ve tam giac deu
+		private void bt_Triangle_Click(object sender, EventArgs e)
+		{
+			shShape = 4;
+		}
+
+		// Ham khoi tao cho opengl
 		private void openGLControl_OpenGLInitialized(object sender, EventArgs e)
 		{
 			// get the openGL object
@@ -71,15 +82,14 @@ namespace SharpGL
 		private void drawLine(OpenGL gl) {
 			// Stopwatch ho tro do thoi gian
 			Stopwatch myTimer = new Stopwatch();
-			myTimer.Reset(); // reset
 			myTimer.Start(); // bat dau do
 			gl.Begin(OpenGL.GL_LINES);
 			gl.Vertex(pStart.X, gl.RenderContextProvider.Height - pStart.Y);
 			gl.Vertex(pEnd.X, gl.RenderContextProvider.Height - pEnd.Y);
 			gl.End();
 			gl.Flush();
-			myTimer.Stop(); // ket thuc do
 
+			myTimer.Stop(); // ket thuc do
 			TimeSpan Time = myTimer.Elapsed;
 			tb_Time.Text = String.Format("{0:00}:{1:00}.{2:000000}", Time.Minutes, Time.Seconds, 
 				(float)Time.Milliseconds / 1000);
@@ -89,20 +99,46 @@ namespace SharpGL
 		// Ham ve hinh tron
 		private void drawCircle(OpenGL gl)
 		{
-			
+				
+		}
+
+		// Ham ve hinh chu nhat
+		private void drawRec(OpenGL gl) {
+			gl.Begin(OpenGL.GL_LINE_LOOP);
+			// Toa do diem dau (x1, y1)
+			// Toa do diem cuoi (x2, y2)
+			gl.Vertex(pStart.X, gl.RenderContextProvider.Height - pStart.Y);
+			// Toa do diem 2 (x2, y1)
+			gl.Vertex(pEnd.X, gl.RenderContextProvider.Height - pStart.Y);
+			// Toa do diem 3 (x2, y2)
+			gl.Vertex(pEnd.X, gl.RenderContextProvider.Height - pEnd.Y);
+			// Toa do diem 4 (x1, y2)
+			gl.Vertex(pStart.X, gl.RenderContextProvider.Height - pEnd.Y);
+			gl.End();
+			gl.Flush();
+
+
 		}
 
 		// Ham ve tam giac
 		private void drawTriangle(OpenGL gl) {
-			gl.Begin(OpenGL.GL_TRIANGLES); // Ve tam giac
-			gl.Vertex2sv(new short[] { 0, 0 }); // Dinh A(0, 0)
-			gl.Vertex2sv(new short[] { 200, 200 }); // Dinh B(100, 100)
-			gl.Vertex2sv(new short[] { 500, 0 }); // Dinh C(200, 0)
+			gl.Begin(OpenGL.GL_LINE_LOOP); // Ve tam giac
+			if (pStart.X > pEnd.X) {
+				int t = pEnd.X;
+				pEnd.X = pStart.X;
+				pStart.X = t;
+			}
+
+			gl.Vertex(pStart.X, gl.RenderContextProvider.Height - pStart.Y); // Dinh A(x1, y1)
+			gl.Vertex(pEnd.X, gl.RenderContextProvider.Height - pEnd.Y); // Dinh B(x2, y2)
+			gl.Vertex(pStart.X - Math.Abs(pStart.X - pEnd.X), gl.RenderContextProvider.Height - pEnd.Y);
+																		// Dinh C(x1 - abs(x2 - x1), y2)
 			gl.End(); // Kết thúc
 			gl.Flush(); // Thuc hien ve ngay thay vi phai doi sau 1 thoi gian
 						// Bản chất khi vẽ thì nó vẽ lên vùng nhớ Buffer
 						// Do đó cần dùng hàm Flush để đẩy vùng nhớ Buffer này lên màn hình
 		}
+		
 		// Cac ham ve khac ...
 
 		private void openGLControl_OpenGLDraw(object sender, RenderEventArgs args)
@@ -127,6 +163,10 @@ namespace SharpGL
 				case 1:
 					// Ve duong tron
 
+					break;
+				case 2:
+					// Ve hinh chu nhat
+					drawRec(gl);
 					break;
 				// case 2..n
 				case 4:

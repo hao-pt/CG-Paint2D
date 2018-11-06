@@ -28,8 +28,11 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
 			this.openGLControl = new SharpGL.OpenGLControl();
 			this.bt_Line = new System.Windows.Forms.Button();
+			this.Icon_List = new System.Windows.Forms.ImageList(this.components);
 			this.bt_Circle = new System.Windows.Forms.Button();
 			this.bt_Palette = new System.Windows.Forms.Button();
 			this.colorDialog1 = new System.Windows.Forms.ColorDialog();
@@ -37,6 +40,8 @@
 			this.tb_Time = new System.Windows.Forms.TextBox();
 			this.bt_Flood_Fill = new System.Windows.Forms.Button();
 			this.panel1 = new System.Windows.Forms.Panel();
+			this.bt_Rec = new System.Windows.Forms.Button();
+			this.bt_Triangle = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.openGLControl)).BeginInit();
 			this.panel1.SuspendLayout();
 			this.SuspendLayout();
@@ -63,21 +68,33 @@
 			// bt_Line
 			// 
 			this.bt_Line.ForeColor = System.Drawing.Color.Black;
-			this.bt_Line.Location = new System.Drawing.Point(3, 7);
+			this.bt_Line.ImageIndex = 0;
+			this.bt_Line.ImageList = this.Icon_List;
+			this.bt_Line.Location = new System.Drawing.Point(12, 10);
 			this.bt_Line.Name = "bt_Line";
-			this.bt_Line.Size = new System.Drawing.Size(75, 23);
+			this.bt_Line.Size = new System.Drawing.Size(30, 30);
 			this.bt_Line.TabIndex = 1;
-			this.bt_Line.Text = "Line";
 			this.bt_Line.UseVisualStyleBackColor = true;
 			this.bt_Line.Click += new System.EventHandler(this.bt_Line_Click);
 			// 
+			// Icon_List
+			// 
+			this.Icon_List.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("Icon_List.ImageStream")));
+			this.Icon_List.TransparentColor = System.Drawing.Color.Transparent;
+			this.Icon_List.Images.SetKeyName(0, "icons8-line-96.png");
+			this.Icon_List.Images.SetKeyName(1, "if_button_shape_triangle_352894.png");
+			this.Icon_List.Images.SetKeyName(2, "icons8-rectangular-100.png");
+			this.Icon_List.Images.SetKeyName(3, "if_check-circle-outline-blank_326565.png");
+			this.Icon_List.Images.SetKeyName(4, "Actions-fill-color-icon.png");
+			// 
 			// bt_Circle
 			// 
-			this.bt_Circle.Location = new System.Drawing.Point(84, 7);
+			this.bt_Circle.ImageIndex = 3;
+			this.bt_Circle.ImageList = this.Icon_List;
+			this.bt_Circle.Location = new System.Drawing.Point(48, 10);
 			this.bt_Circle.Name = "bt_Circle";
-			this.bt_Circle.Size = new System.Drawing.Size(75, 23);
+			this.bt_Circle.Size = new System.Drawing.Size(30, 30);
 			this.bt_Circle.TabIndex = 2;
-			this.bt_Circle.Text = "Circle";
 			this.bt_Circle.UseVisualStyleBackColor = true;
 			// 
 			// bt_Palette
@@ -111,17 +128,21 @@
 			// 
 			// bt_Flood_Fill
 			// 
+			this.bt_Flood_Fill.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.bt_Flood_Fill.ForeColor = System.Drawing.Color.Black;
-			this.bt_Flood_Fill.Location = new System.Drawing.Point(380, 7);
+			this.bt_Flood_Fill.ImageIndex = 4;
+			this.bt_Flood_Fill.ImageList = this.Icon_List;
+			this.bt_Flood_Fill.Location = new System.Drawing.Point(298, 10);
 			this.bt_Flood_Fill.Name = "bt_Flood_Fill";
-			this.bt_Flood_Fill.Size = new System.Drawing.Size(75, 23);
+			this.bt_Flood_Fill.Size = new System.Drawing.Size(45, 45);
 			this.bt_Flood_Fill.TabIndex = 8;
-			this.bt_Flood_Fill.Text = "Flood fill";
-			this.bt_Flood_Fill.UseVisualStyleBackColor = true;
+			this.bt_Flood_Fill.UseVisualStyleBackColor = false;
 			this.bt_Flood_Fill.Click += new System.EventHandler(this.bt_Flood_Fill_Click);
 			// 
 			// panel1
 			// 
+			this.panel1.Controls.Add(this.bt_Rec);
+			this.panel1.Controls.Add(this.bt_Triangle);
 			this.panel1.Controls.Add(this.bt_Line);
 			this.panel1.Controls.Add(this.bt_Palette);
 			this.panel1.Controls.Add(this.tb_Time);
@@ -132,6 +153,28 @@
 			this.panel1.Name = "panel1";
 			this.panel1.Size = new System.Drawing.Size(1368, 110);
 			this.panel1.TabIndex = 9;
+			// 
+			// bt_Rec
+			// 
+			this.bt_Rec.ImageIndex = 2;
+			this.bt_Rec.ImageList = this.Icon_List;
+			this.bt_Rec.Location = new System.Drawing.Point(84, 10);
+			this.bt_Rec.Name = "bt_Rec";
+			this.bt_Rec.Size = new System.Drawing.Size(30, 30);
+			this.bt_Rec.TabIndex = 12;
+			this.bt_Rec.UseVisualStyleBackColor = true;
+			this.bt_Rec.Click += new System.EventHandler(this.bt_Rec_Click);
+			// 
+			// bt_Triangle
+			// 
+			this.bt_Triangle.ImageIndex = 1;
+			this.bt_Triangle.ImageList = this.Icon_List;
+			this.bt_Triangle.Location = new System.Drawing.Point(120, 10);
+			this.bt_Triangle.Name = "bt_Triangle";
+			this.bt_Triangle.Size = new System.Drawing.Size(30, 30);
+			this.bt_Triangle.TabIndex = 11;
+			this.bt_Triangle.UseVisualStyleBackColor = true;
+			this.bt_Triangle.Click += new System.EventHandler(this.bt_Triangle_Click);
 			// 
 			// Form1
 			// 
@@ -162,6 +205,9 @@
 		private System.Windows.Forms.TextBox tb_Time;
 		private System.Windows.Forms.Button bt_Flood_Fill;
 		private System.Windows.Forms.Panel panel1;
+		private System.Windows.Forms.ImageList Icon_List;
+		private System.Windows.Forms.Button bt_Triangle;
+		private System.Windows.Forms.Button bt_Rec;
 	}
 }
 
