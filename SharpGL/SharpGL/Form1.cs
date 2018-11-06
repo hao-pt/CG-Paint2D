@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace SharpGL
 {
@@ -17,7 +18,7 @@ namespace SharpGL
 
 		Point pStart, pEnd; // Toa do diem dau va diem cuoi
 							// Point thuoc lop System.Drawing
-
+		int k; // Bien kiem soat con tro chuot
 		public Form1()
 		{
 			InitializeComponent();
@@ -48,11 +49,7 @@ namespace SharpGL
 			shShape = 0; // Nguoi dung chon ve duong thang
 		}
 
-		// Cap nhat toa do diem cuoi khi nguoi dung keo chuot di
-		private void ctrl_OpenGLControl_MouseUp(object sender, MouseEventArgs e)
-		{
-			pEnd = e.Location; // Lay toa do diem cuoi
-		}
+		
 
 		private void openGLControl_OpenGLInitialized(object sender, EventArgs e)
 		{
@@ -72,13 +69,40 @@ namespace SharpGL
 
 		// Ham ve doan thang
 		private void drawLine(OpenGL gl) {
+			// Stopwatch ho tro do thoi gian
+			Stopwatch myTimer = new Stopwatch();
+			myTimer.Reset(); // reset
+			myTimer.Start(); // bat dau do
 			gl.Begin(OpenGL.GL_LINES);
 			gl.Vertex(pStart.X, gl.RenderContextProvider.Height - pStart.Y);
 			gl.Vertex(pEnd.X, gl.RenderContextProvider.Height - pEnd.Y);
 			gl.End();
 			gl.Flush();
+			myTimer.Stop(); // ket thuc do
+
+			TimeSpan Time = myTimer.Elapsed;
+			tb_Time.Text = String.Format("{0:00}:{1:00}.{2:000000}", Time.Minutes, Time.Seconds, 
+				(float)Time.Milliseconds / 1000);
+
 		}
 
+		// Ham ve hinh tron
+		private void drawCircle(OpenGL gl)
+		{
+			
+		}
+
+		// Ham ve tam giac
+		private void drawTriangle(OpenGL gl) {
+			gl.Begin(OpenGL.GL_TRIANGLES); // Ve tam giac
+			gl.Vertex2sv(new short[] { 0, 0 }); // Dinh A(0, 0)
+			gl.Vertex2sv(new short[] { 200, 200 }); // Dinh B(100, 100)
+			gl.Vertex2sv(new short[] { 500, 0 }); // Dinh C(200, 0)
+			gl.End(); // Kết thúc
+			gl.Flush(); // Thuc hien ve ngay thay vi phai doi sau 1 thoi gian
+						// Bản chất khi vẽ thì nó vẽ lên vùng nhớ Buffer
+						// Do đó cần dùng hàm Flush để đẩy vùng nhớ Buffer này lên màn hình
+		}
 		// Cac ham ve khac ...
 
 		private void openGLControl_OpenGLDraw(object sender, RenderEventArgs args)
@@ -105,8 +129,12 @@ namespace SharpGL
 
 					break;
 				// case 2..n
-			}
+				case 4:
+					drawTriangle(gl);
+					break;
 
+			}
+			return;
 			#region ViDuVeTamGiac
 			/* 
 			
@@ -139,12 +167,44 @@ namespace SharpGL
 			gl.Ortho2D(0, openGLControl.Width, 0, openGLControl.Height);
 		}
 
+		private void label1_Click(object sender, EventArgs e)
+		{
+			
+		}
+
+		// Ham xu ly su kien to mau theo vet loang
+		private void bt_Flood_Fill_Click(object sender, EventArgs e)
+		{
+			// Thuat toan to mau theo vet loang
+			
+		}
+
+		// Cap nhat diem cuoi khi nguoi dung dang keo chuot
+		private void ctrl_OpenGLControl_MouseMove(object sender, MouseEventArgs e)
+		{
+			// Neu chuot dang di chuyen thi moi cap nhat diem pEnd
+			if(k == 1)
+				// Cap nhat diem cuoi
+				pEnd = e.Location;
+			
+		}
+
+		// Cap nhat toa do diem cuoi khi nguoi dung buong chuot ra
+		private void ctrl_OpenGLControl_MouseUp(object sender, MouseEventArgs e)
+		{
+			pEnd = e.Location; // Lay toa do diem cuoi
+			openGLControl.Cursor = Cursors.Default; // Tra ve con tro chuot nhu cu
+			k = 0; // chuot het di chuyen
+		}
+
 		// Cap nhat diem dau
 		private void ctrl_OpenGLControl_MouseDown(object sender, MouseEventArgs e)
 		{
 			// Cap nhat toa do diem dau
 			pStart = e.Location; // e la tham so lien quan den su kien chon diem
 			pEnd = pStart; // Mac dinh pEnd = pStart
+			openGLControl.Cursor = Cursors.Cross; // Thay doi hinh dang con tro chuot khi ve
+			k = 1; // Chuot dang bat dau di chuyen
 		}
 
 	}
