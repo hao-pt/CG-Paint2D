@@ -102,6 +102,29 @@ namespace SharpGL
 		{
 			shShape = Shape.TRIANGLE;
 		}
+		// Bat su kien nguoi dung ve ngu giac deu
+		private void bt_Pentagon_Click(object sender, EventArgs e)
+		{
+			shShape = Shape.PENTAGON;
+		}
+
+		// Bat su kien nguoi dung ve luc giac deu
+		private void bt_Hexagon_Click(object sender, EventArgs e)
+		{
+			shShape = Shape.HEXAGON;
+		}
+
+		// Bat su kien nguoi dung ve duong tron
+		private void bt_Circle_Click(object sender, EventArgs e)
+		{
+			shShape = Shape.CIRCLE;
+		}
+
+		// Bat su kien nguoi dung ve ellipse
+		private void bt_Ellipse_Click(object sender, EventArgs e)
+		{
+			shShape = Shape.ELLIPSE;
+		}
 
 		// Ham khoi tao cho opengl
 		private void openGLControl_OpenGLInitialized(object sender, EventArgs e)
@@ -159,15 +182,13 @@ namespace SharpGL
 		private void drawTriangle(OpenGL gl) {
 			gl.Enable(OpenGL.GL_LINE_SMOOTH); // Lam tron cac diem ve, cho duong thang muot hon
 			gl.Begin(OpenGL.GL_LINE_LOOP); // Ve tam giac
-			if (pStart.X > pEnd.X) {
-				Point t = pEnd;
-				pEnd = pStart;
-				pStart = t;
-			}
-
 			gl.Vertex(pStart.X, gl.RenderContextProvider.Height - pStart.Y); // Dinh A(x1, y1)
 			gl.Vertex(pEnd.X, gl.RenderContextProvider.Height - pEnd.Y); // Dinh B(x2, y2)
-			gl.Vertex(pStart.X - Math.Abs(pStart.X - pEnd.X), gl.RenderContextProvider.Height - pEnd.Y);
+
+			if (pEnd.X < pStart.X) // Neu nguoi dung keo chuot qua trai
+				gl.Vertex(pStart.X + Math.Abs(pStart.X - pEnd.X), gl.RenderContextProvider.Height - pEnd.Y);
+			else // Neu nguoi dung keo chuot qua phai
+				gl.Vertex(pStart.X - Math.Abs(pStart.X - pEnd.X), gl.RenderContextProvider.Height - pEnd.Y);
 																		// Dinh C(x1 - abs(x2 - x1), y2)
 			gl.End(); // Kết thúc
 			gl.Flush(); // Thuc hien ve ngay thay vi phai doi sau 1 thoi gian
@@ -313,7 +334,6 @@ namespace SharpGL
 		{
 			currentSize = int.Parse(cBox_Choose_Size.Text);
 		}
-
 		// Cap nhat diem dau khi nguoi dung bat dau giu chuot
 		private void ctrl_OpenGLControl_MouseDown(object sender, MouseEventArgs e)
 		{

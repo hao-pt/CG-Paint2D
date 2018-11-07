@@ -37,6 +37,8 @@
 			this.lb_Time = new System.Windows.Forms.Label();
 			this.tb_Time = new System.Windows.Forms.TextBox();
 			this.pnl_Tool_Bar = new System.Windows.Forms.Panel();
+			this.lb_Color2 = new System.Windows.Forms.Label();
+			this.lb_Color1 = new System.Windows.Forms.Label();
 			this.bt_Right_Color = new System.Windows.Forms.Button();
 			this.bt_Left_Color = new System.Windows.Forms.Button();
 			this.lb_Size = new System.Windows.Forms.Label();
@@ -48,8 +50,7 @@
 			this.bt_Line = new System.Windows.Forms.Button();
 			this.bt_Flood_Fill = new System.Windows.Forms.Button();
 			this.bt_Circle = new System.Windows.Forms.Button();
-			this.lb_Color1 = new System.Windows.Forms.Label();
-			this.lb_Color2 = new System.Windows.Forms.Label();
+			this.bt_Ellipse = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.openGLControl)).BeginInit();
 			this.pnl_Tool_Bar.SuspendLayout();
 			this.SuspendLayout();
@@ -117,6 +118,7 @@
 			// 
 			// pnl_Tool_Bar
 			// 
+			this.pnl_Tool_Bar.Controls.Add(this.bt_Ellipse);
 			this.pnl_Tool_Bar.Controls.Add(this.lb_Color2);
 			this.pnl_Tool_Bar.Controls.Add(this.lb_Color1);
 			this.pnl_Tool_Bar.Controls.Add(this.bt_Right_Color);
@@ -137,6 +139,24 @@
 			this.pnl_Tool_Bar.Name = "pnl_Tool_Bar";
 			this.pnl_Tool_Bar.Size = new System.Drawing.Size(1368, 110);
 			this.pnl_Tool_Bar.TabIndex = 9;
+			// 
+			// lb_Color2
+			// 
+			this.lb_Color2.AutoSize = true;
+			this.lb_Color2.Location = new System.Drawing.Point(642, 71);
+			this.lb_Color2.Name = "lb_Color2";
+			this.lb_Color2.Size = new System.Drawing.Size(40, 13);
+			this.lb_Color2.TabIndex = 20;
+			this.lb_Color2.Text = "Color 2";
+			// 
+			// lb_Color1
+			// 
+			this.lb_Color1.AutoSize = true;
+			this.lb_Color1.Location = new System.Drawing.Point(573, 71);
+			this.lb_Color1.Name = "lb_Color1";
+			this.lb_Color1.Size = new System.Drawing.Size(40, 13);
+			this.lb_Color1.TabIndex = 19;
+			this.lb_Color1.Text = "Color 1";
 			// 
 			// bt_Right_Color
 			// 
@@ -176,6 +196,7 @@
 			this.bt_Hexagon.Size = new System.Drawing.Size(30, 30);
 			this.bt_Hexagon.TabIndex = 15;
 			this.bt_Hexagon.UseVisualStyleBackColor = true;
+			this.bt_Hexagon.Click += new System.EventHandler(this.bt_Hexagon_Click);
 			// 
 			// bt_Pentagon
 			// 
@@ -185,6 +206,7 @@
 			this.bt_Pentagon.Size = new System.Drawing.Size(30, 30);
 			this.bt_Pentagon.TabIndex = 14;
 			this.bt_Pentagon.UseVisualStyleBackColor = true;
+			this.bt_Pentagon.Click += new System.EventHandler(this.bt_Pentagon_Click);
 			// 
 			// cBox_Choose_Size
 			// 
@@ -262,24 +284,17 @@
 			this.bt_Circle.Size = new System.Drawing.Size(30, 30);
 			this.bt_Circle.TabIndex = 2;
 			this.bt_Circle.UseVisualStyleBackColor = true;
+			this.bt_Circle.Click += new System.EventHandler(this.bt_Circle_Click);
 			// 
-			// lb_Color1
+			// bt_Ellipse
 			// 
-			this.lb_Color1.AutoSize = true;
-			this.lb_Color1.Location = new System.Drawing.Point(573, 71);
-			this.lb_Color1.Name = "lb_Color1";
-			this.lb_Color1.Size = new System.Drawing.Size(40, 13);
-			this.lb_Color1.TabIndex = 19;
-			this.lb_Color1.Text = "Color 1";
-			// 
-			// lb_Color2
-			// 
-			this.lb_Color2.AutoSize = true;
-			this.lb_Color2.Location = new System.Drawing.Point(642, 71);
-			this.lb_Color2.Name = "lb_Color2";
-			this.lb_Color2.Size = new System.Drawing.Size(40, 13);
-			this.lb_Color2.TabIndex = 20;
-			this.lb_Color2.Text = "Color 2";
+			this.bt_Ellipse.Image = ((System.Drawing.Image)(resources.GetObject("bt_Ellipse.Image")));
+			this.bt_Ellipse.Location = new System.Drawing.Point(12, 62);
+			this.bt_Ellipse.Name = "bt_Ellipse";
+			this.bt_Ellipse.Size = new System.Drawing.Size(30, 30);
+			this.bt_Ellipse.TabIndex = 21;
+			this.bt_Ellipse.UseVisualStyleBackColor = true;
+			this.bt_Ellipse.Click += new System.EventHandler(this.bt_Ellipse_Click);
 			// 
 			// Form1
 			// 
@@ -321,6 +336,7 @@
 		private System.Windows.Forms.Button bt_Left_Color;
 		private System.Windows.Forms.Label lb_Color2;
 		private System.Windows.Forms.Label lb_Color1;
+		private System.Windows.Forms.Button bt_Ellipse;
 	}
 }
 
