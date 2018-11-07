@@ -26,9 +26,9 @@ E:\K16\Junior\Computer graphic\CG-Paint2D\SharpGL\SharpGL\bin\Debug\SharpGL.Scen
 E:\K16\Junior\Computer graphic\CG-Paint2D\SharpGL\SharpGL\bin\Debug\SharpGL.SceneGraph.xml
 E:\K16\Junior\Computer graphic\CG-Paint2D\SharpGL\SharpGL\bin\Debug\SharpGL.WinForms.pdb
 E:\K16\Junior\Computer graphic\CG-Paint2D\SharpGL\SharpGL\bin\Debug\SharpGL.WinForms.xml
-E:\K16\Junior\Computer graphic\CG-Paint2D\SharpGL\SharpGL\obj\Debug\SharpGL.csprojResolveAssemblyReference.cache
 E:\K16\Junior\Computer graphic\CG-Paint2D\SharpGL\SharpGL\obj\Debug\SharpGL.Form1.resources
 E:\K16\Junior\Computer graphic\CG-Paint2D\SharpGL\SharpGL\obj\Debug\SharpGL.Properties.Resources.resources
 E:\K16\Junior\Computer graphic\CG-Paint2D\SharpGL\SharpGL\obj\Debug\SharpGL.csproj.GenerateResource.Cache
 E:\K16\Junior\Computer graphic\CG-Paint2D\SharpGL\SharpGL\obj\Debug\SharpGL.exe
 E:\K16\Junior\Computer graphic\CG-Paint2D\SharpGL\SharpGL\obj\Debug\SharpGL.pdb
+E:\K16\Junior\Computer graphic\CG-Paint2D\SharpGL\SharpGL\obj\Debug\SharpGL.csprojResolveAssemblyReference.cache
