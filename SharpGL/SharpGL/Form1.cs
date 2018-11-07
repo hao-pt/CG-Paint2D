@@ -18,20 +18,21 @@ namespace SharpGL
 	}
 
 	// Kieu enum cho nut chon hinh ve
-	public enum Shape {
+	public enum ShapeMode {
 		LINE,
 		CIRCLE,
 		RECTANGLE,
 		ELLIPSE,
 		TRIANGLE,
 		PENTAGON,
-		HEXAGON
+		HEXAGON,
+		FLOOD_FILL
 	}
 
 	public partial class Form1 : Form
 	{
 		Color colorUserColor; // Bien mau de ve hinh
-		Shape shShape; // 0 neu muon ve duong thang, 1 neu duong tron, ...
+		ShapeMode shShape; // 0 neu muon ve duong thang, 1 neu duong tron, ...
 
 		Point pStart, pEnd; // Toa do diem dau va diem cuoi
 							// Point thuoc lop System.Drawing
@@ -50,7 +51,7 @@ namespace SharpGL
 			InitializeComponent();
 			colorUserColor = Color.White; // Gia tri mac dinh la mau trang
 			currentButtonColor = ButtonColor.LEFT; // Mac dinh la nut ben trai
-			shShape = Shape.LINE; // Mac dinh ve duong thang
+			shShape = ShapeMode.LINE; // Mac dinh ve duong thang
 			cBox_Choose_Size.SelectedIndex = 0; // Mac dinh net ve hien thi la 1
 
 
@@ -88,42 +89,42 @@ namespace SharpGL
 		// Nguoi dung chon chuc nang ve duong thang
 		private void bt_Line_Click(object sender, EventArgs e)
 		{
-			shShape = Shape.LINE; // Nguoi dung chon ve duong thang
+			shShape = ShapeMode.LINE; // Nguoi dung chon ve duong thang
 		}
 		
 		// Nguoi dung chon chuc nang ve hinh chu nhat
 		private void bt_Rec_Click(object sender, EventArgs e)
 		{
-			shShape = Shape.RECTANGLE;
+			shShape = ShapeMode.RECTANGLE;
 		}
 
 		// Nguoi dung chon chuc nang ve tam giac deu
 		private void bt_Triangle_Click(object sender, EventArgs e)
 		{
-			shShape = Shape.TRIANGLE;
+			shShape = ShapeMode.TRIANGLE;
 		}
 		// Bat su kien nguoi dung ve ngu giac deu
 		private void bt_Pentagon_Click(object sender, EventArgs e)
 		{
-			shShape = Shape.PENTAGON;
+			shShape = ShapeMode.PENTAGON;
 		}
 
 		// Bat su kien nguoi dung ve luc giac deu
 		private void bt_Hexagon_Click(object sender, EventArgs e)
 		{
-			shShape = Shape.HEXAGON;
+			shShape = ShapeMode.HEXAGON;
 		}
 
 		// Bat su kien nguoi dung ve duong tron
 		private void bt_Circle_Click(object sender, EventArgs e)
 		{
-			shShape = Shape.CIRCLE;
+			shShape = ShapeMode.CIRCLE;
 		}
 
 		// Bat su kien nguoi dung ve ellipse
 		private void bt_Ellipse_Click(object sender, EventArgs e)
 		{
-			shShape = Shape.ELLIPSE;
+			shShape = ShapeMode.ELLIPSE;
 		}
 
 		// Ham khoi tao cho opengl
@@ -223,31 +224,35 @@ namespace SharpGL
 				// ...
 				switch (shShape)
 				{
-					case Shape.LINE:
+					case ShapeMode.LINE:
 						// Ve doan thang
 						drawLine(gl);
 						break;
-					case Shape.CIRCLE:
+					case ShapeMode.CIRCLE:
 						// Ve duong tron
 
 						break;
-					case Shape.RECTANGLE:
+					case ShapeMode.RECTANGLE:
 						// Ve hinh chu nhat
 						drawRec(gl);
 						break;
-					case Shape.ELLIPSE:
+					case ShapeMode.ELLIPSE:
 						// Ve ellipse
 						break;
-					case Shape.TRIANGLE:
+					case ShapeMode.TRIANGLE:
 						// Ve tam giac deu
 						drawTriangle(gl);
 						break;
-					case Shape.PENTAGON:
+					case ShapeMode.PENTAGON:
 						// Ve ngu giac deu
 
 						break;
-					case Shape.HEXAGON:
+					case ShapeMode.HEXAGON:
 						// Ve luc giac deu
+						break;
+					case ShapeMode.FLOOD_FILL:
+						// To mau bang thuat toan flood fill
+						floodFill(pStart.X, pStart.Y);
 						break;
 				}
 				myTimer.Stop(); // ket thuc do
@@ -286,11 +291,45 @@ namespace SharpGL
 			gl.Ortho2D(0, openGLControl.Width, 0, openGLControl.Height);
 		}
 
+		// Ham getPixelColor
+		private void getPixelColor(Point p, out Byte[] color) {
+			OpenGL gl = openGLControl.OpenGL;
+			color = new Byte[3];
+			
+			gl.ReadPixels(p.X, p.Y, 1, 1, OpenGL.GL_RGB, OpenGL.GL_FLOAT, color);
+		}
+
+		// Ham set pixel color
+		private void setPixelColor(Point p) {
+			OpenGL gl = openGLControl.OpenGL;
+			// set mau
+			gl.Color(colorUserColor.R / 255.0, colorUserColor.G / 255.0, colorUserColor.B / 255.0, 0);
+			gl.Begin(OpenGL.GL_POINTS);
+			gl.Vertex(p.X, p.Y);
+			gl.End();
+			gl.Flush();
+		}
+
+		private void floodFill(int x, int y) {
+			Byte[] color;
+			getPixelColor(pStart, out color);
+
+			// Thuat toan to mau theo vet loang
+			// Neu color cua pixel khac bien va chua to mau
+			if (color[0] == 0 && color[1] == 0 && color[2] == 0)
+			{
+				setPixelColor(pStart);
+				floodFill(x + 1, y);
+				floodFill(x - 1, y);
+				floodFill(x, y + 1);
+				floodFill(x, y - 1);
+			}
+		}
+
 		// Ham xu ly su kien to mau theo vet loang
 		private void bt_Flood_Fill_Click(object sender, EventArgs e)
 		{
-			// Thuat toan to mau theo vet loang
-			
+			shShape = ShapeMode.FLOOD_FILL;
 		}
 
 		// Khi nguoi dung click button chon mau ben trai
@@ -312,9 +351,13 @@ namespace SharpGL
 		private void ctrl_OpenGLControl_MouseMove(object sender, MouseEventArgs e)
 		{
 			// Neu chuot dang di chuyen thi moi cap nhat diem pEnd
-			if(isDown == 1 && pEnd.X != -1 && pEnd.Y != -1)
+			if (isDown == 1)
+			{
 				// Cap nhat diem cuoi
 				pEnd = new Point(e.Location.X, e.Location.Y);
+				// In toa do khi di chuyen chuot 
+				lb_Coor.Text = e.X.ToString() + ", " + e.Y.ToString();
+			}
 			
 		}
 
@@ -324,16 +367,22 @@ namespace SharpGL
 			openGLControl.Cursor = Cursors.Default; // Tra ve con tro chuot nhu cu
 			isDown = 0; // chuot het di chuyen
 
-			// Ve len bitmap
-			Pen pen = new Pen(colorUserColor);
-			gr.DrawLine(pen, pStart, pEnd);
-			this.BackgroundImage = (Bitmap)bm.Clone(); // Set lai background
+			//// Ve len bitmap
+			//Pen pen = new Pen(colorUserColor);
+			//gr.DrawLine(pen, pStart, pEnd);
+			//this.BackgroundImage = (Bitmap)bm.Clone(); // Set lai background
 		}
 
 		private void cBox_Choose_Size_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			currentSize = int.Parse(cBox_Choose_Size.Text);
 		}
+
+		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Application.Exit(); // Tắt chuong trinh
+		}
+
 		// Cap nhat diem dau khi nguoi dung bat dau giu chuot
 		private void ctrl_OpenGLControl_MouseDown(object sender, MouseEventArgs e)
 		{
