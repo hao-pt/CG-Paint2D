@@ -37,6 +37,8 @@
 			this.lb_Time = new System.Windows.Forms.Label();
 			this.tb_Time = new System.Windows.Forms.TextBox();
 			this.pnl_Tool_Bar = new System.Windows.Forms.Panel();
+			this.lb_Flood_Fill = new System.Windows.Forms.Label();
+			this.bt_Ellipse = new System.Windows.Forms.Button();
 			this.lb_Color2 = new System.Windows.Forms.Label();
 			this.lb_Color1 = new System.Windows.Forms.Label();
 			this.bt_Right_Color = new System.Windows.Forms.Button();
@@ -50,7 +52,6 @@
 			this.bt_Line = new System.Windows.Forms.Button();
 			this.bt_Flood_Fill = new System.Windows.Forms.Button();
 			this.bt_Circle = new System.Windows.Forms.Button();
-			this.bt_Ellipse = new System.Windows.Forms.Button();
 			this.menuStrip2 = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -62,9 +63,8 @@
 			this.redoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.resizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pnl_Under = new System.Windows.Forms.Panel();
-			this.lb_Flood_Fill = new System.Windows.Forms.Label();
-			this.lb_Coor = new System.Windows.Forms.Label();
 			this.ptBox_Cursor = new System.Windows.Forms.PictureBox();
+			this.lb_Coor = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.openGLControl)).BeginInit();
 			this.pnl_Tool_Bar.SuspendLayout();
 			this.menuStrip2.SuspendLayout();
@@ -160,6 +160,25 @@
 			this.pnl_Tool_Bar.Name = "pnl_Tool_Bar";
 			this.pnl_Tool_Bar.Size = new System.Drawing.Size(1368, 112);
 			this.pnl_Tool_Bar.TabIndex = 9;
+			// 
+			// lb_Flood_Fill
+			// 
+			this.lb_Flood_Fill.AutoSize = true;
+			this.lb_Flood_Fill.Location = new System.Drawing.Point(258, 71);
+			this.lb_Flood_Fill.Name = "lb_Flood_Fill";
+			this.lb_Flood_Fill.Size = new System.Drawing.Size(45, 13);
+			this.lb_Flood_Fill.TabIndex = 22;
+			this.lb_Flood_Fill.Text = "Flood fill";
+			// 
+			// bt_Ellipse
+			// 
+			this.bt_Ellipse.Image = ((System.Drawing.Image)(resources.GetObject("bt_Ellipse.Image")));
+			this.bt_Ellipse.Location = new System.Drawing.Point(12, 62);
+			this.bt_Ellipse.Name = "bt_Ellipse";
+			this.bt_Ellipse.Size = new System.Drawing.Size(30, 30);
+			this.bt_Ellipse.TabIndex = 21;
+			this.bt_Ellipse.UseVisualStyleBackColor = true;
+			this.bt_Ellipse.Click += new System.EventHandler(this.bt_Ellipse_Click);
 			// 
 			// lb_Color2
 			// 
@@ -307,16 +326,6 @@
 			this.bt_Circle.UseVisualStyleBackColor = true;
 			this.bt_Circle.Click += new System.EventHandler(this.bt_Circle_Click);
 			// 
-			// bt_Ellipse
-			// 
-			this.bt_Ellipse.Image = ((System.Drawing.Image)(resources.GetObject("bt_Ellipse.Image")));
-			this.bt_Ellipse.Location = new System.Drawing.Point(12, 62);
-			this.bt_Ellipse.Name = "bt_Ellipse";
-			this.bt_Ellipse.Size = new System.Drawing.Size(30, 30);
-			this.bt_Ellipse.TabIndex = 21;
-			this.bt_Ellipse.UseVisualStyleBackColor = true;
-			this.bt_Ellipse.Click += new System.EventHandler(this.bt_Ellipse_Click);
-			// 
 			// menuStrip2
 			// 
 			this.menuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -342,25 +351,25 @@
 			// newToolStripMenuItem
 			// 
 			this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-			this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.newToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
 			this.newToolStripMenuItem.Text = "&New";
 			// 
 			// openToolStripMenuItem
 			// 
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
 			this.openToolStripMenuItem.Text = "&Open";
 			// 
 			// saveToolStripMenuItem
 			// 
 			this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-			this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.saveToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
 			this.saveToolStripMenuItem.Text = "&Save";
 			// 
 			// exitToolStripMenuItem
 			// 
 			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-			this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.exitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
 			this.exitToolStripMenuItem.Text = "&Exit";
 			this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
@@ -377,19 +386,19 @@
 			// undoToolStripMenuItem
 			// 
 			this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
-			this.undoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.undoToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
 			this.undoToolStripMenuItem.Text = "&Undo";
 			// 
 			// redoToolStripMenuItem
 			// 
 			this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
-			this.redoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.redoToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
 			this.redoToolStripMenuItem.Text = "&Redo";
 			// 
 			// resizeToolStripMenuItem
 			// 
 			this.resizeToolStripMenuItem.Name = "resizeToolStripMenuItem";
-			this.resizeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.resizeToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
 			this.resizeToolStripMenuItem.Text = "R&esize";
 			// 
 			// pnl_Under
@@ -402,14 +411,14 @@
 			this.pnl_Under.Size = new System.Drawing.Size(1366, 30);
 			this.pnl_Under.TabIndex = 11;
 			// 
-			// lb_Flood_Fill
+			// ptBox_Cursor
 			// 
-			this.lb_Flood_Fill.AutoSize = true;
-			this.lb_Flood_Fill.Location = new System.Drawing.Point(258, 71);
-			this.lb_Flood_Fill.Name = "lb_Flood_Fill";
-			this.lb_Flood_Fill.Size = new System.Drawing.Size(45, 13);
-			this.lb_Flood_Fill.TabIndex = 22;
-			this.lb_Flood_Fill.Text = "Flood fill";
+			this.ptBox_Cursor.Image = ((System.Drawing.Image)(resources.GetObject("ptBox_Cursor.Image")));
+			this.ptBox_Cursor.Location = new System.Drawing.Point(3, 3);
+			this.ptBox_Cursor.Name = "ptBox_Cursor";
+			this.ptBox_Cursor.Size = new System.Drawing.Size(25, 25);
+			this.ptBox_Cursor.TabIndex = 1;
+			this.ptBox_Cursor.TabStop = false;
 			// 
 			// lb_Coor
 			// 
@@ -420,15 +429,6 @@
 			this.lb_Coor.Size = new System.Drawing.Size(24, 15);
 			this.lb_Coor.TabIndex = 0;
 			this.lb_Coor.Text = "0,0";
-			// 
-			// ptBox_Cursor
-			// 
-			this.ptBox_Cursor.Image = ((System.Drawing.Image)(resources.GetObject("ptBox_Cursor.Image")));
-			this.ptBox_Cursor.Location = new System.Drawing.Point(3, 3);
-			this.ptBox_Cursor.Name = "ptBox_Cursor";
-			this.ptBox_Cursor.Size = new System.Drawing.Size(25, 25);
-			this.ptBox_Cursor.TabIndex = 1;
-			this.ptBox_Cursor.TabStop = false;
 			// 
 			// Form1
 			// 

@@ -261,6 +261,8 @@ namespace SharpGL
 
 		// Ham ve tam giac
 		private void drawTriangle(OpenGL gl) {
+			#region VeTamGiacCan
+			/*
 			gl.Enable(OpenGL.GL_LINE_SMOOTH); // Lam tron cac diem ve, cho duong thang muot hon
 			gl.Begin(OpenGL.GL_LINE_LOOP); // Ve tam giac
 			gl.Vertex(pStart.X, gl.RenderContextProvider.Height - pStart.Y); // Dinh A(x1, y1)
@@ -276,6 +278,45 @@ namespace SharpGL
 						// Bản chất khi vẽ thì nó vẽ lên vùng nhớ Buffer
 						// Do đó cần dùng hàm Flush để đẩy vùng nhớ Buffer này lên màn hình
 			gl.Disable(OpenGL.GL_LINE_SMOOTH);
+			*/
+			#endregion
+			#region Ve Tam giac deu bang pp quay diem
+			// Ý tưởng: Các đỉnh của ngũ giác đều quay 1 goc alpha = 120*PI/180 độ (đổi về radian)
+			// B1: Gán pStart là tâm
+			// B2: Quay pEnd theo công thức
+			//	x' = x*cos(alpha) - sin(alpha)*y
+			//	y' = x*sin(alpha) + y*cos(alpha)
+			const int totalSegments = 3; // số lượng các segments
+
+			// Ban kinh bằng 1 nửa của đoạn thẳng pStart, pEnd
+			double r;
+			calculateDistance(out r);
+			r /= 2;
+
+			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
+			int xc = (pStart.X + pEnd.X) / 2;
+			int yc = (pStart.Y + pEnd.Y) / 2;
+
+			int x = 0;
+			int y = (int)r;
+
+			// Bat dau ve
+			gl.Enable(OpenGL.GL_LINE_SMOOTH);
+			gl.Begin(OpenGL.GL_LINE_LOOP);
+
+			for (int alpha = 0; alpha < 360; alpha += 360 / totalSegments)
+			{
+				// Đổi về radian
+				double alpha_rad = alpha * Math.PI / 180;
+				// Tinh x, y
+				gl.Vertex(xc + x * Math.Cos(alpha_rad) - y * Math.Sin(alpha_rad)
+					, yc + x * Math.Sin(alpha_rad) + y * Math.Cos(alpha_rad));
+			}
+
+			gl.End();
+			gl.Flush();
+			gl.Disable(OpenGL.GL_LINE_SMOOTH);
+			#endregion
 		}
 
 		private void drawPentagon(OpenGL gl) {
