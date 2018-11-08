@@ -155,10 +155,90 @@ namespace SharpGL
 			gl.Disable(OpenGL.GL_LINE_SMOOTH);
 		}
 
+		// Ham tinh khoang cach giua pStart va pEnd
+		private void calculateDistance(out double d) {
+			d = Math.Sqrt(Math.Pow(pStart.X - pEnd.X, 2) + Math.Pow(pStart.Y - pEnd.Y, 2));
+		}
+
+		private void put8Pixel(OpenGL gl, int a, int b, int x, int y) {
+			gl.PointSize(currentSize);
+			gl.Begin(OpenGL.GL_POINTS);
+			gl.Vertex(a + x, b + y);
+			gl.Vertex(a + x, b - y);
+			gl.Vertex(a - x, b + y);
+			gl.Vertex(a - x, b - y);
+			gl.Vertex(a + y, b + x);
+			gl.Vertex(a - y, b + x);
+			gl.Vertex(a + y, b - x);
+			gl.Vertex(a - y, b - x);
+			gl.End();
+			gl.Flush();
+
+		}
+
 		// Ham ve hinh tron
 		private void drawCircle(OpenGL gl)
 		{
-				
+			#region Cach 1: Su dung luong giac
+			/*
+			// Y tuong: Ve duong tron bang cach chia duong tron thanh cac segments 
+			// (segments cac lon thi duong cong se cang muot)
+			// Ta se chay Goc alpha tu 0 - 360 độ va alpha += 360 / totalSegments cho mỗi lần duyệt
+			// Lưu ý: goc alpha đươc tính theo radian nên cần phải đổi sang radian:
+			//		alpha_rad = alpha * 2*PI / 360 = alpha * PI/180
+			// Toa độ x, y mỗi lần duyệt bằng: x = r*cos(alpha_rad), y = r*sin(alpha_rad)
+
+			const int totalSegments = 90; // số lượng các segments
+			// Ban kinh la đoặn thẳng nối từ pStart đến pEnd
+			double r;
+			calculateDistance(out r);
+
+			// Bat dau ve
+			gl.Enable(OpenGL.GL_LINE_SMOOTH);
+			gl.Begin(OpenGL.GL_LINE_LOOP);
+
+
+			for (int alpha = 0; alpha < 360; alpha += 360 / totalSegments) {
+				// Đổi về radian
+				double alpha_rad = alpha * Math.PI / 180;
+				// Tinh x, y
+				gl.Vertex(pEnd.X + r * Math.Cos(alpha_rad), pEnd.Y + r * Math.Sin(alpha_rad));
+			}
+
+			gl.End();
+			gl.Flush();
+			gl.Disable(OpenGL.GL_LINE_SMOOTH);
+			*/
+			#endregion
+			#region Cach 2: Su dung thuat toan MidPoint
+			// Ban kinh la 1 nửa của đường chéo hình vuông, tức là 1 nửa của pStart và pEnd
+			double r;
+			calculateDistance(out r);
+			r /= 2;
+
+			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
+			int xc = (pStart.X + pEnd.X) / 2;
+			int yc = (pStart.Y + pEnd.Y) / 2;
+
+			// Giả sử xét tâm tại 0
+			int x = 0;
+			int y = (int)r;
+			int p = (int)(5/4 - r);
+
+			// Ve diem  dau (0, r)
+			put8Pixel(gl, xc, yc, x, y);
+
+			while (x < y) {
+				x++;
+				if (p < 0)
+					p += 2 * x + 3; 
+				else {
+					y--;
+					p += 2 * (x - y) + 5;
+				}
+				put8Pixel(gl, xc, yc, x, y);
+			}
+			#endregion
 		}
 
 		// Ham ve hinh chu nhat
@@ -198,6 +278,109 @@ namespace SharpGL
 			gl.Disable(OpenGL.GL_LINE_SMOOTH);
 		}
 
+		private void drawPentagon(OpenGL gl) {
+			#region Cach 1: Dung luong giac
+			/*
+			// Ý tưởng: ngũ giác đều chia đường tròn thành 5 đoạn. Mỗi đoạn cách nhau 72 độ
+			// Làm tương tự như thuật toán vẽ đường tròn theo cách lượng giác
+			const int totalSegments = 5; // số lượng các segments
+			// Ban kinh la đoặn thẳng nối từ pStart đến pEnd
+			double r;
+			calculateDistance(out r);
+
+			// Bat dau ve
+			gl.Enable(OpenGL.GL_LINE_SMOOTH);
+			gl.Begin(OpenGL.GL_LINE_LOOP);
+
+			for (int alpha = 0; alpha < 360; alpha += 360 / totalSegments)
+			{
+				// Đổi về radian
+				double alpha_rad = alpha * Math.PI / 180;
+				// Tinh x, y
+				gl.Vertex(pStart.X + r * Math.Cos(alpha_rad), pStart.Y + r * Math.Sin(alpha_rad));
+			}
+
+			gl.End();
+			gl.Flush();
+			gl.Disable(OpenGL.GL_LINE_SMOOTH);
+			*/
+
+			#endregion
+			#region Cach 2: Dung phep quay diem
+			// Ý tưởng: Các đỉnh của ngũ giác đều quay 1 goc alpha = 72*PI/180 độ (đổi về radian)
+			// B1: Gán pStart là tâm
+			// B2: Quay pEnd theo công thức
+			//	x' = x*cos(alpha) - sin(alpha)*y
+			//	y' = x*sin(alpha) + y*cos(alpha)
+			const int totalSegments = 5; // số lượng các segments
+
+			// Ban kinh bằng 1 nửa của đoạn thẳng pStart, pEnd
+			double r;
+			calculateDistance(out r);
+			r /= 2;
+
+			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
+			int xc = (pStart.X + pEnd.X) / 2;
+			int yc = (pStart.Y + pEnd.Y) / 2;
+
+			int x = 0;
+			int y = (int)r;
+
+			// Bat dau ve
+			gl.Enable(OpenGL.GL_LINE_SMOOTH);
+			gl.Begin(OpenGL.GL_LINE_LOOP);
+
+			for (int alpha = 0; alpha < 360; alpha += 360 / totalSegments)
+			{
+				// Đổi về radian
+				double alpha_rad = alpha * Math.PI / 180;
+				// Tinh x, y
+				gl.Vertex(xc + x * Math.Cos(alpha_rad) - y * Math.Sin(alpha_rad)
+					, yc + x * Math.Sin(alpha_rad) + y * Math.Cos(alpha_rad));
+			}
+
+			gl.End();
+			gl.Flush();
+			gl.Disable(OpenGL.GL_LINE_SMOOTH);
+			#endregion
+		}
+		private void drawHexagon(OpenGL gl) {
+			// Ý tưởng: Các đỉnh của ngũ giác đều quay 1 goc alpha = 60*PI/180 độ (đổi về radian)
+			// B1: Gán pStart là tâm
+			// B2: Quay pEnd theo công thức
+			//	x' = x*cos(alpha) - sin(alpha)*y
+			//	y' = x*sin(alpha) + y*cos(alpha)
+			const int totalSegments = 6; // số lượng các segments
+			// Ban kinh bằng 1 nửa của đoạn thẳng đi qua pStart, pEnd
+			double r;
+			calculateDistance(out r);
+			r /= 2;
+
+			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
+			int xc = (pStart.X + pEnd.X) / 2;
+			int yc = (pStart.Y + pEnd.Y) / 2;
+
+			int x = 0;
+			int y = (int)r;
+
+			// Bat dau ve
+			gl.Enable(OpenGL.GL_LINE_SMOOTH);
+			gl.Begin(OpenGL.GL_LINE_LOOP);
+
+			for (int alpha = 0; alpha < 360; alpha += 360 / totalSegments)
+			{
+				// Đổi về radian
+				double alpha_rad = alpha * Math.PI / 180;
+				// Tinh x, y
+				gl.Vertex(xc + x * Math.Cos(alpha_rad) - y * Math.Sin(alpha_rad)
+					, yc + x * Math.Sin(alpha_rad) + y * Math.Cos(alpha_rad));
+			}
+
+			gl.End();
+			gl.Flush();
+			gl.Disable(OpenGL.GL_LINE_SMOOTH);
+		}
+
 		// Cac ham ve khac ...
 
 		private void openGLControl_OpenGLDraw(object sender, RenderEventArgs args)
@@ -230,7 +413,7 @@ namespace SharpGL
 						break;
 					case ShapeMode.CIRCLE:
 						// Ve duong tron
-
+						drawCircle(gl);
 						break;
 					case ShapeMode.RECTANGLE:
 						// Ve hinh chu nhat
@@ -245,33 +428,23 @@ namespace SharpGL
 						break;
 					case ShapeMode.PENTAGON:
 						// Ve ngu giac deu
-
+						drawPentagon(gl);
 						break;
 					case ShapeMode.HEXAGON:
 						// Ve luc giac deu
+						drawHexagon(gl);
 						break;
 					case ShapeMode.FLOOD_FILL:
 						// To mau bang thuat toan flood fill
 						floodFill(pStart.X, pStart.Y);
 						break;
 				}
+
 				myTimer.Stop(); // ket thuc do
 				TimeSpan Time = myTimer.Elapsed; // Lay thoi gian troi qua
 				tb_Time.Text = String.Format("{0} (sec)", Time.TotalSeconds); // In ra tb_Time
 			}
-			#region ViDuVeTamGiac
-			/* 
 			
-			gl.Begin(OpenGL.GL_TRIANGLES); // Ve tam giac
-			gl.Vertex2sv(new short[] { 0, 0 }); // Dinh A(0, 0)
-			gl.Vertex2sv(new short[] { 200, 200 }); // Dinh B(100, 100)
-			gl.Vertex2sv(new short[] { 500, 0 }); // Dinh C(200, 0)
-			gl.End(); // Kết thúc
-			gl.Flush(); // Thuc hien ve ngay thay vi phai doi sau 1 thoi gian
-						// Bản chất khi vẽ thì nó vẽ lên vùng nhớ Buffer
-						// Do đó cần dùng hàm Flush để đẩy vùng nhớ Buffer này lên màn hình
-			*/
-			#endregion
 		}
 
 
@@ -367,6 +540,9 @@ namespace SharpGL
 			openGLControl.Cursor = Cursors.Default; // Tra ve con tro chuot nhu cu
 			isDown = 0; // chuot het di chuyen
 
+			pStart.X = pStart.Y = 0;
+			pEnd.X = pEnd.Y = 0;
+
 			//// Ve len bitmap
 			//Pen pen = new Pen(colorUserColor);
 			//gr.DrawLine(pen, pStart, pEnd);
@@ -388,7 +564,7 @@ namespace SharpGL
 		{
 			// Cap nhat toa do diem dau
 			pStart = new Point(e.Location.X, e.Location.Y); // e la tham so lien quan den su kien chon diem
-			pEnd = pStart; // Mac dinh pEnd = pStart
+			pEnd = new Point(e.X, e.Y); // Mac dinh pEnd = pStart
 			openGLControl.Cursor = Cursors.Cross; // Thay doi hinh dang con tro chuot khi ve
 			isDown = 1; // Chuot dang bat dau di chuyen
 		}
