@@ -112,42 +112,100 @@ namespace SharpGL
 		// Nguoi dung chon chuc nang ve duong thang
 		private void bt_Line_Click(object sender, EventArgs e)
 		{
+
+            // Unchecked các menu còn lại
+            for (int i = 0; i < 4; i++)
+            {
+                checkedListBox1.SetItemChecked(i, false);
+            }
+            // Check menu Drawing
+            checkedListBox1.SetItemChecked(0, true);
+            chooseItem = SharpGL.Menu.DRAWING;
 			shShape = ShapeMode.LINE; // Nguoi dung chon ve duong thang
 		}
 		
 		// Nguoi dung chon chuc nang ve hinh chu nhat
 		private void bt_Rec_Click(object sender, EventArgs e)
 		{
-			shShape = ShapeMode.RECTANGLE;
+            // Unchecked các menu còn lại
+            for (int i = 0; i < 4; i++)
+            {
+                checkedListBox1.SetItemChecked(i, false);
+            }
+            // Check menu Drawing
+            checkedListBox1.SetItemChecked(0, true);
+            chooseItem = SharpGL.Menu.DRAWING;
+            shShape = ShapeMode.RECTANGLE;
 		}
 
 		// Nguoi dung chon chuc nang ve tam giac deu
 		private void bt_Triangle_Click(object sender, EventArgs e)
 		{
-			shShape = ShapeMode.TRIANGLE;
+            // Unchecked các menu còn lại
+            for (int i = 0; i < 4; i++)
+            {
+                checkedListBox1.SetItemChecked(i, false);
+            }
+            // Check menu Drawing
+            checkedListBox1.SetItemChecked(0, true);
+            chooseItem = SharpGL.Menu.DRAWING;
+            shShape = ShapeMode.TRIANGLE;
 		}
 		// Bat su kien nguoi dung ve ngu giac deu
 		private void bt_Pentagon_Click(object sender, EventArgs e)
 		{
-			shShape = ShapeMode.PENTAGON;
+            // Unchecked các menu còn lại
+            for (int i = 0; i < 4; i++)
+            {
+                checkedListBox1.SetItemChecked(i, false);
+            }
+            // Check menu Drawing
+            checkedListBox1.SetItemChecked(0, true);
+            chooseItem = SharpGL.Menu.DRAWING;
+            shShape = ShapeMode.PENTAGON;
 		}
 
 		// Bat su kien nguoi dung ve luc giac deu
 		private void bt_Hexagon_Click(object sender, EventArgs e)
 		{
-			shShape = ShapeMode.HEXAGON;
+            // Unchecked các menu còn lại
+            for (int i = 0; i < 4; i++)
+            {
+                checkedListBox1.SetItemChecked(i, false);
+            }
+            // Check menu Drawing
+            checkedListBox1.SetItemChecked(0, true);
+            chooseItem = SharpGL.Menu.DRAWING;
+            shShape = ShapeMode.HEXAGON;
 		}
 
 		// Bat su kien nguoi dung ve duong tron
 		private void bt_Circle_Click(object sender, EventArgs e)
 		{
-			shShape = ShapeMode.CIRCLE;
+            // Unchecked các menu còn lại
+            for (int i = 0; i < 4; i++)
+            {
+                checkedListBox1.SetItemChecked(i, false);
+            }
+            // Check menu Drawing
+            checkedListBox1.SetItemChecked(0, true);
+            chooseItem = SharpGL.Menu.DRAWING;
+            shShape = ShapeMode.CIRCLE;
 		}
 
 		// Bat su kien nguoi dung ve ellipse
 		private void bt_Ellipse_Click(object sender, EventArgs e)
 		{
-			shShape = ShapeMode.ELLIPSE;
+            
+            // Unchecked các menu còn lại
+            for (int i = 0; i < 4; i++)
+            {
+                checkedListBox1.SetItemChecked(i, false);
+            }
+            // Check menu Drawing
+            checkedListBox1.SetItemChecked(0, true);
+            chooseItem = SharpGL.Menu.DRAWING;
+            shShape = ShapeMode.ELLIPSE;
 		}
 
 		// Ham khoi tao cho opengl
