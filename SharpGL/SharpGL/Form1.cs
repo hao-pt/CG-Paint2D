@@ -29,7 +29,14 @@ namespace SharpGL
 		POLYGON,
 		FLOOD_FILL
 	}
-
+    // Kiểu enum Menu
+    public enum Menu
+    {
+        DRAWING,
+        TRANSLATE,
+        ROTATE,
+        SCALE
+    }
 	public struct MyBitMap {
 		Point[] points;
 		Color colorUse;
@@ -38,6 +45,12 @@ namespace SharpGL
 
 	public partial class Form1 : Form
 	{
+        // Tọa độ điểm di chuyển sau khi chọn menu
+        Point menuStart, menuEnd;
+        Menu chooseItem = SharpGL.Menu.DRAWING;
+
+        // Biến kiểm tra chúng ta có pushMatrix hay không
+        bool isPushMatrix = false;
 		Color colorUserColor; // Bien mau de ve hinh
 		ShapeMode shShape; // 0 neu muon ve duong thang, 1 neu duong tron, ...
 
@@ -565,7 +578,28 @@ namespace SharpGL
 				// Stopwatch ho tro do thoi gian
 				Stopwatch myTimer = new Stopwatch();
 				myTimer.Start(); // bat dau do
-				
+
+                //===================================================================//
+                //===================================================================//
+                //========================Nội dung của Lab 03========================//
+                // Xét trường hợp menu được chọn
+                // Với mỗi menu được chọn ta sẽ xét một ma trận khác
+                if (chooseItem == SharpGL.Menu.TRANSLATE)
+                {
+                    gl.PushMatrix();
+                    int xTrans = menuEnd.X - menuStart.X;
+                    int yTrans = -menuEnd.Y + menuStart.Y;
+                    gl.Translate(xTrans, yTrans, 0);
+                    isPushMatrix = true;
+                }
+                else if (chooseItem == SharpGL.Menu.ROTATE)
+                {
+
+                }
+                else if (chooseItem == SharpGL.Menu.SCALE)
+                {
+
+                }
 				// Ve voi cho nay
 				// ...
 				switch (shShape)
@@ -611,6 +645,10 @@ namespace SharpGL
 				myTimer.Stop(); // ket thuc do
 				TimeSpan Time = myTimer.Elapsed; // Lay thoi gian troi qua
 				tb_Time.Text = String.Format("{0} (sec)", Time.TotalSeconds); // In ra tb_Time
+                if (isPushMatrix == true)
+                {
+                    gl.PopMatrix();
+                }
 			}
 			
 		}
@@ -694,8 +732,17 @@ namespace SharpGL
 			// Neu chuot dang di chuyen thi moi cap nhat diem pEnd
 			if (isDown == 1)
 			{
-				// Cap nhat diem cuoi
-				pEnd = new Point(e.Location.X, e.Location.Y);
+                // Xét menu đang chọn
+                if (chooseItem == SharpGL.Menu.DRAWING)
+                {
+                    // Cap nhat diem cuoi
+                    pEnd = new Point(e.Location.X, e.Location.Y);
+                }
+                else
+                {
+                    // Cập nhật menuEnd
+                    menuEnd = new Point(e.Location.X, e.Location.Y);
+                }
 				// In toa do khi di chuyen chuot 
 				lb_Coor.Text = e.X.ToString() + ", " + e.Y.ToString();
 			}
@@ -705,22 +752,37 @@ namespace SharpGL
 		// Cap nhat toa do diem cuoi khi nguoi dung buong chuot ra
 		private void ctrl_OpenGLControl_MouseUp(object sender, MouseEventArgs e)
 		{
-			// Neu nguoi dung khong ve da giac thi ket thuc viec ve hinh
-			if (shShape != ShapeMode.POLYGON)
-			{
-				openGLControl.Cursor = Cursors.Default; // Tra ve con tro chuot nhu cu
-				isDown = 0; // chuot het di chuyen
+            // Nếu chọn menu Drawing
+            if (chooseItem != SharpGL.Menu.DRAWING)
+            {
+                // Cập nhật lại điểm menuEnd
+                menuEnd = new Point(e.X, e.Y);
+                isDown = 0;
+            }
+            else
+            {
+                // Neu nguoi dung khong ve da giac thi ket thuc viec ve hinh
+                if (shShape != ShapeMode.POLYGON)
+                {
+                    openGLControl.Cursor = Cursors.Default; // Tra ve con tro chuot nhu cu
+                    isDown = 0; // chuot het di chuyen
 
-				// reset lai toa do
-				pStart = new Point(-1, -1);
-				pEnd = new Point(-1, -1);
-			}
+                    //==================>>
+                    // Tạm thời không gán lại
+                    // mình sẽ tìm phương thức khác sau vì các thao tác chuyển dời ảnh cần các điểm này để vẽ lại
 
-			//// Ve len bitmap
-			//Pen pen = new Pen(colorUserColor);
-			//gr.DrawLine(pen, pStart, pEnd);
-			//this.BackgroundImage = (Bitmap)bm.Clone(); // Set lai background
-		}
+                    // reset lai toa do
+                    //pStart = new Point(-1, -1);
+                    //pEnd = new Point(-1, -1);
+                }
+
+                //// Ve len bitmap
+                //Pen pen = new Pen(colorUserColor);
+                //gr.DrawLine(pen, pStart, pEnd);
+                //this.BackgroundImage = (Bitmap)bm.Clone(); // Set lai background
+            }
+
+        }
 
 		private void cBox_Choose_Size_SelectedIndexChanged(object sender, EventArgs e)
 		{
@@ -746,29 +808,64 @@ namespace SharpGL
 			}
 		}
 
-		// Cap nhat diem dau khi nguoi dung bat dau giu chuot
-		private void ctrl_OpenGLControl_MouseDown(object sender, MouseEventArgs e)
+        private void checkedListBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch (checkedListBox1.SelectedIndex)
+            {
+                case 0:
+                    chooseItem = SharpGL.Menu.DRAWING;
+                    break;
+                case 1:
+                    chooseItem = SharpGL.Menu.TRANSLATE;
+                    break;
+                case 2:
+                    chooseItem = SharpGL.Menu.ROTATE;
+                    break;
+                case 3:
+                    chooseItem = SharpGL.Menu.SCALE;
+                    break;
+
+            }
+            for(int i = 0; i < 4; i++)
+            {
+                if (i != checkedListBox1.SelectedIndex)
+                {
+                    checkedListBox1.SetItemChecked(i, false);
+                }
+            }
+        }
+
+        // Cap nhat diem dau khi nguoi dung bat dau giu chuot
+        private void ctrl_OpenGLControl_MouseDown(object sender, MouseEventArgs e)
 		{
-			if (shShape != ShapeMode.POLYGON)
-			{
-				// Cap nhat toa do diem dau
-				pStart = new Point(e.Location.X, e.Location.Y); // e la tham so lien quan den su kien chon diem
-				pEnd = new Point(e.X, e.Y); // Mac dinh pEnd = pStart
-			}
-			else
-			{
-				// Neu moi bat dau click
-				if (pStart.X == -1)
-				{
-					pStart = new Point(e.X, e.Y);
-					pEnd = new Point(e.X, e.Y); // Mac dinh pEnd = pStart
-				}
-				else // Nguoc lai
-				{
-					pStart = new Point(pEnd.X, pEnd.Y);
-					pEnd = new Point(e.X, e.Y);
-				}
-			}
+            if(chooseItem == SharpGL.Menu.DRAWING)
+            {
+                if (shShape != ShapeMode.POLYGON)
+                {
+                    // Cap nhat toa do diem dau
+                    pStart = new Point(e.Location.X, e.Location.Y); // e la tham so lien quan den su kien chon diem
+                    pEnd = new Point(e.X, e.Y); // Mac dinh pEnd = pStart
+                }
+                else
+                {
+                    // Neu moi bat dau click
+                    if (pStart.X == -1)
+                    {
+                        pStart = new Point(e.X, e.Y);
+                        pEnd = new Point(e.X, e.Y); // Mac dinh pEnd = pStart
+                    }
+                    else // Nguoc lai
+                    {
+                        pStart = new Point(pEnd.X, pEnd.Y);
+                        pEnd = new Point(e.X, e.Y);
+                    }
+                }
+            }
+            else
+            {
+                menuStart = menuEnd = new Point(e.X, e.Y);
+            }
+			
 
 			openGLControl.Cursor = Cursors.Cross; // Thay doi hinh dang con tro chuot khi ve
 			isDown = 1; // Chuot dang bat dau di chuyen
