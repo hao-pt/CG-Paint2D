@@ -65,6 +65,7 @@
 			this.pnl_Under = new System.Windows.Forms.Panel();
 			this.ptBox_Cursor = new System.Windows.Forms.PictureBox();
 			this.lb_Coor = new System.Windows.Forms.Label();
+			this.bt_Polygon = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.openGLControl)).BeginInit();
 			this.pnl_Tool_Bar.SuspendLayout();
 			this.menuStrip2.SuspendLayout();
@@ -89,6 +90,7 @@
 			this.openGLControl.OpenGLDraw += new SharpGL.RenderEventHandler(this.openGLControl_OpenGLDraw);
 			this.openGLControl.Resized += new System.EventHandler(this.openGLControl_Resized);
 			this.openGLControl.Load += new System.EventHandler(this.openGLControl1_Load);
+			this.openGLControl.MouseClick += new System.Windows.Forms.MouseEventHandler(this.openGLControl_MouseClick);
 			this.openGLControl.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ctrl_OpenGLControl_MouseDown);
 			this.openGLControl.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ctrl_OpenGLControl_MouseMove);
 			this.openGLControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ctrl_OpenGLControl_MouseUp);
@@ -138,6 +140,7 @@
 			// pnl_Tool_Bar
 			// 
 			this.pnl_Tool_Bar.BackColor = System.Drawing.Color.LightGray;
+			this.pnl_Tool_Bar.Controls.Add(this.bt_Polygon);
 			this.pnl_Tool_Bar.Controls.Add(this.lb_Flood_Fill);
 			this.pnl_Tool_Bar.Controls.Add(this.bt_Ellipse);
 			this.pnl_Tool_Bar.Controls.Add(this.lb_Color2);
@@ -164,7 +167,7 @@
 			// lb_Flood_Fill
 			// 
 			this.lb_Flood_Fill.AutoSize = true;
-			this.lb_Flood_Fill.Location = new System.Drawing.Point(258, 71);
+			this.lb_Flood_Fill.Location = new System.Drawing.Point(301, 71);
 			this.lb_Flood_Fill.Name = "lb_Flood_Fill";
 			this.lb_Flood_Fill.Size = new System.Drawing.Size(45, 13);
 			this.lb_Flood_Fill.TabIndex = 22;
@@ -173,9 +176,9 @@
 			// bt_Ellipse
 			// 
 			this.bt_Ellipse.Image = ((System.Drawing.Image)(resources.GetObject("bt_Ellipse.Image")));
-			this.bt_Ellipse.Location = new System.Drawing.Point(12, 62);
+			this.bt_Ellipse.Location = new System.Drawing.Point(14, 55);
 			this.bt_Ellipse.Name = "bt_Ellipse";
-			this.bt_Ellipse.Size = new System.Drawing.Size(30, 30);
+			this.bt_Ellipse.Size = new System.Drawing.Size(40, 40);
 			this.bt_Ellipse.TabIndex = 21;
 			this.bt_Ellipse.UseVisualStyleBackColor = true;
 			this.bt_Ellipse.Click += new System.EventHandler(this.bt_Ellipse_Click);
@@ -231,9 +234,9 @@
 			// bt_Hexagon
 			// 
 			this.bt_Hexagon.Image = ((System.Drawing.Image)(resources.GetObject("bt_Hexagon.Image")));
-			this.bt_Hexagon.Location = new System.Drawing.Point(192, 10);
+			this.bt_Hexagon.Location = new System.Drawing.Point(244, 10);
 			this.bt_Hexagon.Name = "bt_Hexagon";
-			this.bt_Hexagon.Size = new System.Drawing.Size(30, 30);
+			this.bt_Hexagon.Size = new System.Drawing.Size(40, 40);
 			this.bt_Hexagon.TabIndex = 15;
 			this.bt_Hexagon.UseVisualStyleBackColor = true;
 			this.bt_Hexagon.Click += new System.EventHandler(this.bt_Hexagon_Click);
@@ -241,9 +244,9 @@
 			// bt_Pentagon
 			// 
 			this.bt_Pentagon.Image = ((System.Drawing.Image)(resources.GetObject("bt_Pentagon.Image")));
-			this.bt_Pentagon.Location = new System.Drawing.Point(156, 10);
+			this.bt_Pentagon.Location = new System.Drawing.Point(198, 10);
 			this.bt_Pentagon.Name = "bt_Pentagon";
-			this.bt_Pentagon.Size = new System.Drawing.Size(30, 30);
+			this.bt_Pentagon.Size = new System.Drawing.Size(40, 40);
 			this.bt_Pentagon.TabIndex = 14;
 			this.bt_Pentagon.UseVisualStyleBackColor = true;
 			this.bt_Pentagon.Click += new System.EventHandler(this.bt_Pentagon_Click);
@@ -273,9 +276,9 @@
 			// 
 			this.bt_Rec.ImageIndex = 2;
 			this.bt_Rec.ImageList = this.Icon_List;
-			this.bt_Rec.Location = new System.Drawing.Point(84, 10);
+			this.bt_Rec.Location = new System.Drawing.Point(106, 10);
 			this.bt_Rec.Name = "bt_Rec";
-			this.bt_Rec.Size = new System.Drawing.Size(30, 30);
+			this.bt_Rec.Size = new System.Drawing.Size(40, 40);
 			this.bt_Rec.TabIndex = 12;
 			this.bt_Rec.UseVisualStyleBackColor = true;
 			this.bt_Rec.Click += new System.EventHandler(this.bt_Rec_Click);
@@ -284,9 +287,9 @@
 			// 
 			this.bt_Triangle.ImageIndex = 1;
 			this.bt_Triangle.ImageList = this.Icon_List;
-			this.bt_Triangle.Location = new System.Drawing.Point(120, 10);
+			this.bt_Triangle.Location = new System.Drawing.Point(152, 10);
 			this.bt_Triangle.Name = "bt_Triangle";
-			this.bt_Triangle.Size = new System.Drawing.Size(30, 30);
+			this.bt_Triangle.Size = new System.Drawing.Size(40, 40);
 			this.bt_Triangle.TabIndex = 11;
 			this.bt_Triangle.UseVisualStyleBackColor = true;
 			this.bt_Triangle.Click += new System.EventHandler(this.bt_Triangle_Click);
@@ -296,9 +299,9 @@
 			this.bt_Line.ForeColor = System.Drawing.Color.Black;
 			this.bt_Line.ImageIndex = 0;
 			this.bt_Line.ImageList = this.Icon_List;
-			this.bt_Line.Location = new System.Drawing.Point(12, 10);
+			this.bt_Line.Location = new System.Drawing.Point(14, 9);
 			this.bt_Line.Name = "bt_Line";
-			this.bt_Line.Size = new System.Drawing.Size(30, 30);
+			this.bt_Line.Size = new System.Drawing.Size(40, 40);
 			this.bt_Line.TabIndex = 1;
 			this.bt_Line.UseVisualStyleBackColor = true;
 			this.bt_Line.Click += new System.EventHandler(this.bt_Line_Click);
@@ -309,7 +312,7 @@
 			this.bt_Flood_Fill.ForeColor = System.Drawing.Color.Black;
 			this.bt_Flood_Fill.ImageIndex = 4;
 			this.bt_Flood_Fill.ImageList = this.Icon_List;
-			this.bt_Flood_Fill.Location = new System.Drawing.Point(258, 10);
+			this.bt_Flood_Fill.Location = new System.Drawing.Point(300, 10);
 			this.bt_Flood_Fill.Name = "bt_Flood_Fill";
 			this.bt_Flood_Fill.Size = new System.Drawing.Size(45, 45);
 			this.bt_Flood_Fill.TabIndex = 8;
@@ -319,9 +322,9 @@
 			// bt_Circle
 			// 
 			this.bt_Circle.Image = ((System.Drawing.Image)(resources.GetObject("bt_Circle.Image")));
-			this.bt_Circle.Location = new System.Drawing.Point(48, 10);
+			this.bt_Circle.Location = new System.Drawing.Point(60, 10);
 			this.bt_Circle.Name = "bt_Circle";
-			this.bt_Circle.Size = new System.Drawing.Size(30, 30);
+			this.bt_Circle.Size = new System.Drawing.Size(40, 40);
 			this.bt_Circle.TabIndex = 2;
 			this.bt_Circle.UseVisualStyleBackColor = true;
 			this.bt_Circle.Click += new System.EventHandler(this.bt_Circle_Click);
@@ -430,6 +433,16 @@
 			this.lb_Coor.TabIndex = 0;
 			this.lb_Coor.Text = "0,0";
 			// 
+			// bt_Polygon
+			// 
+			this.bt_Polygon.Image = ((System.Drawing.Image)(resources.GetObject("bt_Polygon.Image")));
+			this.bt_Polygon.Location = new System.Drawing.Point(60, 55);
+			this.bt_Polygon.Name = "bt_Polygon";
+			this.bt_Polygon.Size = new System.Drawing.Size(40, 40);
+			this.bt_Polygon.TabIndex = 23;
+			this.bt_Polygon.UseVisualStyleBackColor = true;
+			this.bt_Polygon.Click += new System.EventHandler(this.bt_Polygon_Click);
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -493,6 +506,7 @@
 		private System.Windows.Forms.Label lb_Flood_Fill;
 		private System.Windows.Forms.Label lb_Coor;
 		private System.Windows.Forms.PictureBox ptBox_Cursor;
+		private System.Windows.Forms.Button bt_Polygon;
 	}
 }
 

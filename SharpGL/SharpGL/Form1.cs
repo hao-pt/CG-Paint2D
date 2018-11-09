@@ -26,7 +26,14 @@ namespace SharpGL
 		TRIANGLE,
 		PENTAGON,
 		HEXAGON,
+		POLYGON,
 		FLOOD_FILL
+	}
+
+	public struct MyBitMap {
+		Point[] points;
+		Color colorUse;
+		ShapeMode type;
 	}
 
 	public partial class Form1 : Form
@@ -36,9 +43,10 @@ namespace SharpGL
 
 		Point pStart, pEnd; // Toa do diem dau va diem cuoi
 							// Point thuoc lop System.Drawing
+		Point pMid; // De ve da giac
 		int isDown; // Bien kiem soat con tro chuot co dang duoc giu khong
 		int currentSize; // Kich co ve hien tai
-
+		
 		ButtonColor currentButtonColor; // Nut chon mau hien tai
 
 		// De repaint duoc thi can mot doi tuong Bitmap de luu tru lại tat cac nhung gi user ve
@@ -54,6 +62,8 @@ namespace SharpGL
 			shShape = ShapeMode.LINE; // Mac dinh ve duong thang
 			cBox_Choose_Size.SelectedIndex = 0; // Mac dinh net ve hien thi la 1
 
+			// Khoi tao toa diem ban dau
+			pStart = new Point(-1, -1);
 
 			// Cap phat vung nho cho Bitmap
 			bm = new Bitmap(this.Width, this.Height); // kich thuoc bitmap bang voi form1
@@ -156,10 +166,16 @@ namespace SharpGL
 		}
 
 		// Ham tinh khoang cach giua pStart va pEnd
-		private void calculateDistance(out double d) {
-			d = Math.Sqrt(Math.Pow(pStart.X - pEnd.X, 2) + Math.Pow(pStart.Y - pEnd.Y, 2));
+		private void calculateDistance(Point a, Point b, out double d) {
+			d = Math.Sqrt(Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2));
 		}
 
+		private void calculateDistance(int xa, int ya, int xb, int yb, out double d)
+		{
+			d = Math.Sqrt(Math.Pow(xa - xb, 2) + Math.Pow(ya - yb, 2));
+		}
+
+		// Ham ve cac diem trong diem doi xung trong duong tron
 		private void put8Pixel(OpenGL gl, int a, int b, int x, int y) {
 			gl.PointSize(currentSize);
 			gl.Begin(OpenGL.GL_POINTS);
@@ -173,7 +189,6 @@ namespace SharpGL
 			gl.Vertex(a - y, b - x);
 			gl.End();
 			gl.Flush();
-
 		}
 
 		// Ham ve hinh tron
@@ -213,7 +228,7 @@ namespace SharpGL
 			#region Cach 2: Su dung thuat toan MidPoint
 			// Ban kinh la 1 nửa của đường chéo hình vuông, tức là 1 nửa của pStart và pEnd
 			double r;
-			calculateDistance(out r);
+			calculateDistance(pStart, pEnd, out r);
 			r /= 2;
 
 			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
@@ -238,6 +253,109 @@ namespace SharpGL
 				}
 				put8Pixel(gl, xc, yc, x, y);
 			}
+			#endregion
+		}
+
+		// Ham ve cac diem doi xung trong ellipse
+		private void put4Pixel(OpenGL gl, int a, int b, int x, int y) {
+			gl.PointSize(currentSize);
+			gl.Begin(OpenGL.GL_POINTS);
+			gl.Vertex(a + x, b + y);
+			gl.Vertex(a + x, b - y);
+			gl.Vertex(a - x, b - y);
+			gl.Vertex(a - x, b + y);
+			gl.End();
+			gl.Flush();
+		}
+
+		// Ham lam tron
+		int Round(double x) {
+			return (int)(x + 0.5);
+		}
+
+		// Ham ve ellipse bang thuat toan Midpoint
+		private void drawEllipse(OpenGL gl) {
+
+			#region Ve ellipse bang thuat toan Midpoint
+			// Gia su ban dau xet tai tam 0(0, 0)
+
+			// Tinh tam C(xc, yc) cua ellipse
+			// Dat tam C la trung diem cua doan thang noi pStart va pEnd
+			int xc = Round((double)(pStart.X + pEnd.X) / 2);
+			int yc = Round((double)(pStart.Y + pEnd.Y) / 2);
+
+			// Goi A(xa, ya) la giao diem cua 0x va ellipse
+			int xa = pEnd.X;
+			int ya = Round((double)(pStart.Y + pEnd.Y) / 2);
+
+			// Goi B(xb, yb) la giao diem cua 0y va ellipse
+			int xb = Round((double)(pStart.X + pEnd.X) / 2);
+			int yb = pStart.Y;
+
+			// Tinh rx va ry
+			double rx;
+			calculateDistance(xa, ya, xc, yc, out rx);
+			double ry;
+			calculateDistance(xb, yb, xc, yc, out ry);
+
+			// Diem dau
+			int x = 0;
+			int y = Round(ry);
+
+			double ry2 = ry * ry; // ry^2
+			double rx2 = rx * rx; // rx^2
+
+			double p = ry2 - rx2 * ry + (1 / 4) * rx2;
+			double A = 2 * ry2 * x;
+			double B = 2 * rx2 * y;
+
+			// Ve 4 diem dau
+			put4Pixel(gl, xc, yc, x, y);
+			// Xét vùng 1: 0 < |dy/dx| <= 1
+			int k = 0;
+			while (A < B)
+			{
+				x++;
+				if (p < 0)
+				{
+					A += 2 * ry2;
+					p += A + ry2;
+				}
+				else
+				{
+					y--;
+					A += 2 * ry2;
+					B -= 2 * rx2;
+					p += A - B + ry2;
+				}
+				put4Pixel(gl, xc, yc, x, y);
+			}
+
+			// Xét vùng 2: |dy/dx| > 1
+			float xlast = x, ylast = y;
+			A = 2 * ry2 * xlast;
+			B = 2 * rx2 * ylast;
+			p = ry2 * Math.Pow((xlast + 1 / 2), 2) + rx2 * Math.Pow((ylast - 1), 2) - rx2 * ry2;
+
+			k = 0;
+			while (y != 0)
+			{
+				y--;
+				if (p < 0)
+				{
+					x++;
+					A += 2 * ry2;
+					B -= 2 * rx2;
+					p += A - B + rx2;
+				}
+				else
+				{
+					B -= 2 * rx2;
+					p += -B + rx2;
+				}
+				put4Pixel(gl, xc, yc, x, y);
+			}
+
 			#endregion
 		}
 
@@ -290,7 +408,7 @@ namespace SharpGL
 
 			// Ban kinh bằng 1 nửa của đoạn thẳng pStart, pEnd
 			double r;
-			calculateDistance(out r);
+			calculateDistance(pStart, pEnd, out r);
 			r /= 2;
 
 			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
@@ -357,7 +475,7 @@ namespace SharpGL
 
 			// Ban kinh bằng 1 nửa của đoạn thẳng pStart, pEnd
 			double r;
-			calculateDistance(out r);
+			calculateDistance(pStart, pEnd, out r);
 			r /= 2;
 
 			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
@@ -394,7 +512,7 @@ namespace SharpGL
 			const int totalSegments = 6; // số lượng các segments
 			// Ban kinh bằng 1 nửa của đoạn thẳng đi qua pStart, pEnd
 			double r;
-			calculateDistance(out r);
+			calculateDistance(pStart, pEnd, out r);
 			r /= 2;
 
 			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
@@ -422,6 +540,10 @@ namespace SharpGL
 			gl.Disable(OpenGL.GL_LINE_SMOOTH);
 		}
 
+		// Ve da giac
+		private void drawPolygon(OpenGL gl) {
+			drawLine(gl);
+		}
 		// Cac ham ve khac ...
 
 		private void openGLControl_OpenGLDraw(object sender, RenderEventArgs args)
@@ -462,6 +584,7 @@ namespace SharpGL
 						break;
 					case ShapeMode.ELLIPSE:
 						// Ve ellipse
+						drawEllipse(gl);
 						break;
 					case ShapeMode.TRIANGLE:
 						// Ve tam giac deu
@@ -474,6 +597,10 @@ namespace SharpGL
 					case ShapeMode.HEXAGON:
 						// Ve luc giac deu
 						drawHexagon(gl);
+						break;
+					case ShapeMode.POLYGON:
+						// Ve da giac
+						drawPolygon(gl);
 						break;
 					case ShapeMode.FLOOD_FILL:
 						// To mau bang thuat toan flood fill
@@ -578,11 +705,16 @@ namespace SharpGL
 		// Cap nhat toa do diem cuoi khi nguoi dung buong chuot ra
 		private void ctrl_OpenGLControl_MouseUp(object sender, MouseEventArgs e)
 		{
-			openGLControl.Cursor = Cursors.Default; // Tra ve con tro chuot nhu cu
-			isDown = 0; // chuot het di chuyen
+			// Neu nguoi dung khong ve da giac thi ket thuc viec ve hinh
+			if (shShape != ShapeMode.POLYGON)
+			{
+				openGLControl.Cursor = Cursors.Default; // Tra ve con tro chuot nhu cu
+				isDown = 0; // chuot het di chuyen
 
-			pStart.X = pStart.Y = 0;
-			pEnd.X = pEnd.Y = 0;
+				// reset lai toa do
+				pStart = new Point(-1, -1);
+				pEnd = new Point(-1, -1);
+			}
 
 			//// Ve len bitmap
 			//Pen pen = new Pen(colorUserColor);
@@ -600,12 +732,44 @@ namespace SharpGL
 			Application.Exit(); // Tắt chuong trinh
 		}
 
+		private void bt_Polygon_Click(object sender, EventArgs e)
+		{
+			shShape = ShapeMode.POLYGON;
+		}
+
+		// Xu ly su kien nguoi dung click chuot
+		private void openGLControl_MouseClick(object sender, MouseEventArgs e)
+		{
+			// Neu nguoi dung nhap chuot phai nghia la ket thuc ve da giac
+			if (e.Button == MouseButtons.Right && shShape == ShapeMode.POLYGON) {
+				isDown = 0;
+			}
+		}
+
 		// Cap nhat diem dau khi nguoi dung bat dau giu chuot
 		private void ctrl_OpenGLControl_MouseDown(object sender, MouseEventArgs e)
 		{
-			// Cap nhat toa do diem dau
-			pStart = new Point(e.Location.X, e.Location.Y); // e la tham so lien quan den su kien chon diem
-			pEnd = new Point(e.X, e.Y); // Mac dinh pEnd = pStart
+			if (shShape != ShapeMode.POLYGON)
+			{
+				// Cap nhat toa do diem dau
+				pStart = new Point(e.Location.X, e.Location.Y); // e la tham so lien quan den su kien chon diem
+				pEnd = new Point(e.X, e.Y); // Mac dinh pEnd = pStart
+			}
+			else
+			{
+				// Neu moi bat dau click
+				if (pStart.X == -1)
+				{
+					pStart = new Point(e.X, e.Y);
+					pEnd = new Point(e.X, e.Y); // Mac dinh pEnd = pStart
+				}
+				else // Nguoc lai
+				{
+					pStart = new Point(pEnd.X, pEnd.Y);
+					pEnd = new Point(e.X, e.Y);
+				}
+			}
+
 			openGLControl.Cursor = Cursors.Cross; // Thay doi hinh dang con tro chuot khi ve
 			isDown = 1; // Chuot dang bat dau di chuyen
 		}
