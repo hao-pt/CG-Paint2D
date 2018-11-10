@@ -80,7 +80,7 @@ namespace SharpGL
 			currentButtonColor = ButtonColor.LEFT; // Mac dinh la nut ben trai
 			shShape = ShapeMode.LINE; // Mac dinh ve duong thang
 			cBox_Choose_Size.SelectedIndex = 0; // Mac dinh net ve hien thi la 1
-
+			chkLstBox_Options.SetItemChecked(0, true); // Mặc đinh là tick vào ô Drawing 
 			// Khoi tao toa diem ban dau
 			pStart = new Point(-1, -1);
 
@@ -629,6 +629,7 @@ namespace SharpGL
 			drawLine(gl);
 		}
 
+		// Ham translate
 		private void translate(OpenGL gl) {
 			gl.PushMatrix();
 			// Tinh khoang doi trx va try
