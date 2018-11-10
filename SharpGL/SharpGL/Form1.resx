@@ -125,7 +125,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAADQ
-        CwAAAk1TRnQBSQFMAgEBCAEAATABAAEwAQABEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
+        CwAAAk1TRnQBSQFMAgEBCAEAAUABAAFAAQABEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
         AwABQAMAATADAAEBAQABCAYAAQwYAAGAAgABgAMAAoABAAGAAwABgAEAAYABAAKAAgADwAEAAcAB3AHA
         AQAB8AHKAaYBAAEzBQABMwEAATMBAAEzAQACMwIAAxYBAAMcAQADIgEAAykBAANVAQADTQEAA0IBAAM5
         AQABgAF8Af8BAAJQAf8BAAGTAQAB1gEAAf8B7AHMAQABxgHWAe8BAAHWAucBAAGQAakBrQIAAf8BMwMA
@@ -235,6 +235,15 @@
   <metadata name="colorDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <data name="bt_Polygon.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAANNJREFUOE+d
+        0z8LQVEYx/GbP4lIKavBYLMYrTabhcVmwERKXojdpCgDA/lTRnkLSnYvw/e5z40bOd17fvXp/M4Znm73
+        dJw/meKCGmJyEDRFrDFE1Vs3mKGBNJL4SQQjrFCQg6/k0cEVZznwp4sd2u7OnBS2yLg7L3eUtQZKHWOt
+        moW3hskeCa12A5roa7UbID/9gKhsbAZI5FYmUmwHtPCQYjMghyPkWq0GLPG++rADBuhp1YQZUMFc6yfy
+        eOJajSnhhKy78+UJGSJfYnKDPDhfHOcFJs0jvIqVPTIAAAAASUVORK5CYII=
+</value>
+  </data>
   <data name="bt_Ellipse.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAIRJREFUOE+1
@@ -290,15 +299,6 @@
         7dnKk6nAxX7gB4vIjTPb9r8qZB13eMSeD1JxZtsezxk+sTT8VhAX5sy2beUW5tHHLRaQjMt0Yc5s21b2
         8hx6KPUSt+3CnNm2veTl2dHnNZJxiW47W5gVs5fco43CTP5VvuQGnRBC5RdctzY3KhlodgAAAABJRU5E
         rkJggg==
-</value>
-  </data>
-  <data name="bt_Polygon.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAADTSURBVDhPndM/C0FRGMfxmz+JSCmrwWCzGK02m4XFZsBESl6I3aQoAwP5U0Z5C0p2L8P3uc+N
-        Gznde3716fzOGZ5u93ScP5nighpichA0RawxRNVbN5ihgTSS+EkEI6xQkIOv5NHBFWc58KeLHdruzpwU
-        tsi4Oy93lLUGSh1jrZqFt4bJHgmtdgOa6Gu1GyA//YCobGwGSORWJlJsB7TwkGIzIIcj5FqtBizxvvqw
-        AwboadWEGVDBXOsn8njiWo0p4YSsu/PlCRkiX2Jygzw4XxznBSbNI7yKlT0yAAAAAElFTkSuQmCC
 </value>
   </data>
 </root>

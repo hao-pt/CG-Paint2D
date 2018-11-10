@@ -1,6 +1,6 @@
 ﻿namespace SharpGL
 {
-	partial class Form1
+	partial class Form_Paint
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -29,7 +29,7 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form_Paint));
 			this.openGLControl = new SharpGL.OpenGLControl();
 			this.Icon_List = new System.Windows.Forms.ImageList(this.components);
 			this.bt_Palette = new System.Windows.Forms.Button();
@@ -37,6 +37,8 @@
 			this.lb_Time = new System.Windows.Forms.Label();
 			this.tb_Time = new System.Windows.Forms.TextBox();
 			this.pnl_Tool_Bar = new System.Windows.Forms.Panel();
+			this.chkLstBox_Options = new System.Windows.Forms.CheckedListBox();
+			this.bt_Polygon = new System.Windows.Forms.Button();
 			this.lb_Flood_Fill = new System.Windows.Forms.Label();
 			this.bt_Ellipse = new System.Windows.Forms.Button();
 			this.lb_Color2 = new System.Windows.Forms.Label();
@@ -65,7 +67,6 @@
 			this.pnl_Under = new System.Windows.Forms.Panel();
 			this.ptBox_Cursor = new System.Windows.Forms.PictureBox();
 			this.lb_Coor = new System.Windows.Forms.Label();
-			this.bt_Polygon = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.openGLControl)).BeginInit();
 			this.pnl_Tool_Bar.SuspendLayout();
 			this.menuStrip2.SuspendLayout();
@@ -79,12 +80,13 @@
 			this.openGLControl.Cursor = System.Windows.Forms.Cursors.Cross;
 			this.openGLControl.DrawFPS = false;
 			this.openGLControl.ForeColor = System.Drawing.SystemColors.ControlText;
-			this.openGLControl.Location = new System.Drawing.Point(-1, 143);
+			this.openGLControl.Location = new System.Drawing.Point(-1, 141);
+			this.openGLControl.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.openGLControl.Name = "openGLControl";
 			this.openGLControl.OpenGLVersion = SharpGL.Version.OpenGLVersion.OpenGL2_1;
 			this.openGLControl.RenderContextType = SharpGL.RenderContextType.DIBSection;
 			this.openGLControl.RenderTrigger = SharpGL.RenderTrigger.TimerBased;
-			this.openGLControl.Size = new System.Drawing.Size(1368, 527);
+			this.openGLControl.Size = new System.Drawing.Size(1368, 530);
 			this.openGLControl.TabIndex = 0;
 			this.openGLControl.OpenGLInitialized += new System.EventHandler(this.openGLControl_OpenGLInitialized);
 			this.openGLControl.OpenGLDraw += new SharpGL.RenderEventHandler(this.openGLControl_OpenGLDraw);
@@ -140,6 +142,7 @@
 			// pnl_Tool_Bar
 			// 
 			this.pnl_Tool_Bar.BackColor = System.Drawing.Color.LightGray;
+			this.pnl_Tool_Bar.Controls.Add(this.chkLstBox_Options);
 			this.pnl_Tool_Bar.Controls.Add(this.bt_Polygon);
 			this.pnl_Tool_Bar.Controls.Add(this.lb_Flood_Fill);
 			this.pnl_Tool_Bar.Controls.Add(this.bt_Ellipse);
@@ -159,10 +162,36 @@
 			this.pnl_Tool_Bar.Controls.Add(this.lb_Time);
 			this.pnl_Tool_Bar.Controls.Add(this.bt_Flood_Fill);
 			this.pnl_Tool_Bar.Controls.Add(this.bt_Circle);
-			this.pnl_Tool_Bar.Location = new System.Drawing.Point(0, 27);
+			this.pnl_Tool_Bar.Location = new System.Drawing.Point(0, 26);
 			this.pnl_Tool_Bar.Name = "pnl_Tool_Bar";
 			this.pnl_Tool_Bar.Size = new System.Drawing.Size(1368, 112);
 			this.pnl_Tool_Bar.TabIndex = 9;
+			// 
+			// chkLstBox_Options
+			// 
+			this.chkLstBox_Options.CheckOnClick = true;
+			this.chkLstBox_Options.FormattingEnabled = true;
+			this.chkLstBox_Options.Items.AddRange(new object[] {
+            "Drawing",
+            "Translate",
+            "Rotate",
+            "Scale"});
+			this.chkLstBox_Options.Location = new System.Drawing.Point(407, 41);
+			this.chkLstBox_Options.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.chkLstBox_Options.Name = "chkLstBox_Options";
+			this.chkLstBox_Options.Size = new System.Drawing.Size(121, 64);
+			this.chkLstBox_Options.TabIndex = 24;
+			this.chkLstBox_Options.SelectedIndexChanged += new System.EventHandler(this.chkLstBox_Options_SelectedIndexChanged);
+			// 
+			// bt_Polygon
+			// 
+			this.bt_Polygon.Image = ((System.Drawing.Image)(resources.GetObject("bt_Polygon.Image")));
+			this.bt_Polygon.Location = new System.Drawing.Point(60, 55);
+			this.bt_Polygon.Name = "bt_Polygon";
+			this.bt_Polygon.Size = new System.Drawing.Size(40, 40);
+			this.bt_Polygon.TabIndex = 23;
+			this.bt_Polygon.UseVisualStyleBackColor = true;
+			this.bt_Polygon.Click += new System.EventHandler(this.bt_Polygon_Click);
 			// 
 			// lb_Flood_Fill
 			// 
@@ -331,6 +360,7 @@
 			// 
 			// menuStrip2
 			// 
+			this.menuStrip2.ImageScalingSize = new System.Drawing.Size(20, 20);
 			this.menuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.editToolStripMenuItem});
@@ -389,19 +419,19 @@
 			// undoToolStripMenuItem
 			// 
 			this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
-			this.undoToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
+			this.undoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.undoToolStripMenuItem.Text = "&Undo";
 			// 
 			// redoToolStripMenuItem
 			// 
 			this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
-			this.redoToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
+			this.redoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.redoToolStripMenuItem.Text = "&Redo";
 			// 
 			// resizeToolStripMenuItem
 			// 
 			this.resizeToolStripMenuItem.Name = "resizeToolStripMenuItem";
-			this.resizeToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
+			this.resizeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.resizeToolStripMenuItem.Text = "R&esize";
 			// 
 			// pnl_Under
@@ -433,17 +463,7 @@
 			this.lb_Coor.TabIndex = 0;
 			this.lb_Coor.Text = "0,0";
 			// 
-			// bt_Polygon
-			// 
-			this.bt_Polygon.Image = ((System.Drawing.Image)(resources.GetObject("bt_Polygon.Image")));
-			this.bt_Polygon.Location = new System.Drawing.Point(60, 55);
-			this.bt_Polygon.Name = "bt_Polygon";
-			this.bt_Polygon.Size = new System.Drawing.Size(40, 40);
-			this.bt_Polygon.TabIndex = 23;
-			this.bt_Polygon.UseVisualStyleBackColor = true;
-			this.bt_Polygon.Click += new System.EventHandler(this.bt_Polygon_Click);
-			// 
-			// Form1
+			// Form_Paint
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -452,8 +472,8 @@
 			this.Controls.Add(this.pnl_Tool_Bar);
 			this.Controls.Add(this.openGLControl);
 			this.Controls.Add(this.menuStrip2);
-			this.Name = "Form1";
-			this.Text = "Form1";
+			this.Name = "Form_Paint";
+			this.Text = "Paint";
 			this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 			this.Load += new System.EventHandler(this.Form1_Load);
 			((System.ComponentModel.ISupportInitialize)(this.openGLControl)).EndInit();
@@ -507,6 +527,7 @@
 		private System.Windows.Forms.Label lb_Coor;
 		private System.Windows.Forms.PictureBox ptBox_Cursor;
 		private System.Windows.Forms.Button bt_Polygon;
-	}
+        private System.Windows.Forms.CheckedListBox chkLstBox_Options;
+    }
 }
 
