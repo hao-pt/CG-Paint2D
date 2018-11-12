@@ -938,7 +938,7 @@ namespace SharpGL
 
 			isPushMatrix = true;
 		}
-
+	
 		private void repaint(OpenGL gl)
 		{
 			for (int i = 0; i < bm.Count; i++)
@@ -1003,7 +1003,7 @@ namespace SharpGL
 				gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
 
 				// Thuc hien repaint
-				repaint(gl);
+				//repaint(gl);
 
 				// Chon mau
 				gl.Color(colorUserColor.R / 255.0, colorUserColor.G / 255.0, colorUserColor.B / 255.0, 0);
