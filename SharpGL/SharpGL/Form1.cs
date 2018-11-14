@@ -49,9 +49,10 @@ namespace SharpGL
 		public ShapeMode type;
 		public int brushSize;
 		// Phuong thuc khoi tao cho struct MyBitMap
-		public MyBitMap(Color _color, ShapeMode _type, int size){
+		public MyBitMap(Color _color, ShapeMode _type, int size)
+		{
 			controlPoints = new List<Point>(); // Khoi tao list
-			// Gan cac thong so can thiet
+											   // Gan cac thong so can thiet
 			colorUse = _color;
 			type = _type;
 			brushSize = size;
@@ -331,14 +332,43 @@ namespace SharpGL
 			*/
 			#endregion
 			#region Cach 2: Su dung thuat toan MidPoint
-			// Ban kinh la 1 nửa của đường chéo hình vuông, tức là 1 nửa của pStart và pEnd
-			double r;
-			calculateDistance(pStart, pEnd, out r);
-			r /= 2;
+			// Tinh lai toa do y cua pStart, pEnd
+			Point p1, p2;
+			p1 = new Point(pStart.X, gl.RenderContextProvider.Height - pStart.Y);
+			p2 = new Point(pEnd.X, gl.RenderContextProvider.Height - pEnd.Y);
 
-			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
-			int xc = (pStart.X + pEnd.X) / 2;
-			int yc = (pStart.Y + pEnd.Y) / 2;
+			// Lay do dan ra cua X
+			int stretchX = Math.Abs(p2.X - p1.X);
+			Point pSymmetry; // Diem doi xung cua p1 
+							 // Co 4 TH de xet
+							 // TH1: x, y cung tang
+							 // TH2: x tang, y giam
+							 // TH3: x giam, y tang
+							 // TH4: x giam, y giam
+
+			int dx = p2.X - p1.X;
+			int dy = p2.Y - p1.Y;
+
+			if (dx > 0 && dy > 0)
+				pSymmetry = new Point(p1.X + stretchX, p1.Y + stretchX);
+			else if (dx > 0 && dy <= 0)
+				pSymmetry = new Point(p1.X + stretchX, p1.Y - stretchX);
+			else if (dx <= 0 && dy > 0)
+				pSymmetry = new Point(p1.X - stretchX, p1.Y + stretchX);
+			else
+				pSymmetry = new Point(p1.X - stretchX, p1.Y - stretchX);
+
+
+
+			// Ban kinh la cung chinh la canh cua hinh vuong 
+			//do duong tron noi tiep hinh vuong co duong cheo di qua p1 va pSymmetry
+			double r;
+			calculateDistance(p1, pSymmetry, out r);
+			r = r / (2 * Math.Sqrt(2));
+
+			// Tam duong tron tai trung diem cua doan thang noi pStart và pSymmetry
+			int xc = (p1.X + pSymmetry.X) / 2;
+			int yc = (p1.Y + pSymmetry.Y) / 2;
 
 			// Giả sử xét tâm tại 0
 			int x = 0;
@@ -382,14 +412,43 @@ namespace SharpGL
 		private void drawCircle(OpenGL gl, Point p1, Point p2, int pointSize)
 		{
 			#region Cach 2: Su dung thuat toan MidPoint
-			// Ban kinh la 1 nửa của đường chéo hình vuông, tức là 1 nửa của pStart và pEnd
-			double r;
-			calculateDistance(p1, p2, out r);
-			r /= 2;
+			// Tinh lai toa do y cua pStart, pEnd
+			Point _p1, _p2;
+			_p1 = new Point(p1.X, gl.RenderContextProvider.Height - p1.Y);
+			_p2 = new Point(p2.X, gl.RenderContextProvider.Height - p2.Y);
 
-			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
-			int xc = (p1.X + p2.X) / 2;
-			int yc = (p1.Y + p2.Y) / 2;
+			// Lay do dan ra cua X
+			int stretchX = Math.Abs(_p2.X - _p1.X);
+			Point pSymmetry; // Diem doi xung cua p1 
+							 // Co 4 TH de xet
+							 // TH1: x, y cung tang
+							 // TH2: x tang, y giam
+							 // TH3: x giam, y tang
+							 // TH4: x giam, y giam
+
+			int dx = _p2.X - _p1.X;
+			int dy = _p2.Y - _p1.Y;
+
+			if (dx > 0 && dy > 0)
+				pSymmetry = new Point(_p1.X + stretchX, _p1.Y + stretchX);
+			else if (dx > 0 && dy <= 0)
+				pSymmetry = new Point(_p1.X + stretchX, _p1.Y - stretchX);
+			else if (dx <= 0 && dy > 0)
+				pSymmetry = new Point(_p1.X - stretchX, _p1.Y + stretchX);
+			else
+				pSymmetry = new Point(_p1.X - stretchX, _p1.Y - stretchX);
+
+
+
+			// Ban kinh la cung chinh la canh cua hinh vuong 
+			//do duong tron noi tiep hinh vuong co duong cheo di qua p1 va pSymmetry
+			double r;
+			calculateDistance(_p1, pSymmetry, out r);
+			r = r / (2 * Math.Sqrt(2));
+
+			// Tam duong tron tai trung diem cua doan thang noi pStart và pSymmetry
+			int xc = (_p1.X + pSymmetry.X) / 2;
+			int yc = (_p1.Y + pSymmetry.Y) / 2;
 
 			// Giả sử xét tâm tại 0
 			int x = 0;
@@ -439,18 +498,23 @@ namespace SharpGL
 			#region Ve ellipse bang thuat toan Midpoint
 			// Gia su ban dau xet tai tam 0(0, 0)
 
+			// Tinh lai toa do y cua pStart, pEnd
+			Point p1, p2;
+			p1 = new Point(pStart.X, gl.RenderContextProvider.Height - pStart.Y);
+			p2 = new Point(pEnd.X, gl.RenderContextProvider.Height - pEnd.Y);
+
 			// Tinh tam C(xc, yc) cua ellipse
 			// Dat tam C la trung diem cua doan thang noi pStart va pEnd
-			int xc = Round((double)(pStart.X + pEnd.X) / 2);
-			int yc = Round((double)(pStart.Y + pEnd.Y) / 2);
+			int xc = Round((double)(p1.X + p2.X) / 2);
+			int yc = Round((double)(p1.Y + p2.Y) / 2);
 
 			// Goi A(xa, ya) la giao diem cua 0x va ellipse
-			int xa = pEnd.X;
-			int ya = Round((double)(pStart.Y + pEnd.Y) / 2);
+			int xa = p2.X;
+			int ya = Round((double)(p1.Y + p2.Y) / 2);
 
 			// Goi B(xb, yb) la giao diem cua 0y va ellipse
-			int xb = Round((double)(pStart.X + pEnd.X) / 2);
-			int yb = pStart.Y;
+			int xb = Round((double)(p1.X + p2.X) / 2);
+			int yb = p1.Y;
 
 			// Tinh rx va ry
 			double rx;
@@ -537,19 +601,21 @@ namespace SharpGL
 		{
 			#region Ve ellipse bang thuat toan Midpoint
 			// Gia su ban dau xet tai tam 0(0, 0)
-
+			// Tinh lai toa do y cua p1, p2
+			Point _p1 = new Point(p1.X, gl.RenderContextProvider.Height - p1.Y);
+			Point _p2 = new Point(p2.X, gl.RenderContextProvider.Height - p2.Y);
 			// Tinh tam C(xc, yc) cua ellipse
 			// Dat tam C la trung diem cua doan thang noi pStart va pEnd
-			int xc = Round((double)(p1.X + p2.X) / 2);
-			int yc = Round((double)(p1.Y + p2.Y) / 2);
+			int xc = Round((double)(_p1.X + _p2.X) / 2);
+			int yc = Round((double)(_p1.Y + _p2.Y) / 2);
 
 			// Goi A(xa, ya) la giao diem cua 0x va ellipse
-			int xa = p2.X;
-			int ya = Round((double)(p1.Y + p2.Y) / 2);
+			int xa = _p2.X;
+			int ya = Round((double)(_p1.Y + _p2.Y) / 2);
 
 			// Goi B(xb, yb) la giao diem cua 0y va ellipse
-			int xb = Round((double)(p1.X + p2.X) / 2);
-			int yb = p1.Y;
+			int xb = Round((double)(_p1.X + _p2.X) / 2);
+			int yb = _p1.Y;
 
 			// Tinh rx va ry
 			double rx;
@@ -655,6 +721,7 @@ namespace SharpGL
 			gl.Disable(OpenGL.GL_LINE_SMOOTH);
 		}
 
+
 		// Ham ve tam giac
 		private void drawTriangle(OpenGL gl)
 		{
@@ -684,18 +751,60 @@ namespace SharpGL
 			//	x' = x*cos(alpha) - sin(alpha)*y
 			//	y' = x*sin(alpha) + y*cos(alpha)
 			const int totalSegments = 3; // số lượng các segments
+										 /*
+										 // Ban kinh bằng 1 nửa của đoạn thẳng pStart, pEnd
+										 double r;
+										 calculateDistance(pStart, pEnd, out r);
+										 r /= 2;
 
-			// Ban kinh bằng 1 nửa của đoạn thẳng pStart, pEnd
+										 // Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
+										 int xc = (pStart.X + pEnd.X) / 2;
+										 int yc = gl.RenderContextProvider.Height - ((pStart.Y + pEnd.Y) / 2);
+										 */
+
+			// Tinh lai toa do y cua pStart, pEnd
+			Point p1, p2;
+			p1 = new Point(pStart.X, gl.RenderContextProvider.Height - pStart.Y);
+			p2 = new Point(pEnd.X, gl.RenderContextProvider.Height - pEnd.Y);
+
+			// Lay do dan ra cua X
+			int stretchX = Math.Abs(p2.X - p1.X);
+			Point pSymmetry; // Diem doi xung cua p1 
+							 // Co 4 TH de xet
+							 // TH1: x, y cung tang
+							 // TH2: x tang, y giam
+							 // TH3: x giam, y tang
+							 // TH4: x giam, y giam
+
+			int dx = p2.X - p1.X;
+			int dy = p2.Y - p1.Y;
+
+			if (dx > 0 && dy > 0)
+				pSymmetry = new Point(p1.X + stretchX, p1.Y + stretchX);
+			else if (dx > 0 && dy <= 0)
+				pSymmetry = new Point(p1.X + stretchX, p1.Y - stretchX);
+			else if (dx <= 0 && dy > 0)
+				pSymmetry = new Point(p1.X - stretchX, p1.Y + stretchX);
+			else
+				pSymmetry = new Point(p1.X - stretchX, p1.Y - stretchX);
+
+
+
+			// Ban kinh la cung chinh la canh cua hinh vuong 
+			//do duong tron noi tiep hinh vuong co duong cheo di qua p1 va pSymmetry
 			double r;
-			calculateDistance(pStart, pEnd, out r);
-			r /= 2;
+			calculateDistance(p1, pSymmetry, out r);
+			r = r / (2 * Math.Sqrt(2));
 
-			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
-			int xc = (pStart.X + pEnd.X) / 2;
-			int yc = (pStart.Y + pEnd.Y) / 2;
+			// Tam duong tron tai trung diem cua doan thang noi pStart và pSymmetry
+			int xc = (p1.X + pSymmetry.X) / 2;
+			int yc = (p1.Y + pSymmetry.Y) / 2;
 
+
+			// Gia su xet tai tam 0(0, 0)
 			int x = 0;
 			int y = (int)r;
+
 
 			// Bat dau ve
 			gl.Enable(OpenGL.GL_LINE_SMOOTH);
@@ -725,15 +834,54 @@ namespace SharpGL
 			//	x' = x*cos(alpha) - sin(alpha)*y
 			//	y' = x*sin(alpha) + y*cos(alpha)
 			const int totalSegments = 3; // số lượng các segments
+										 /*
+										 // Ban kinh bằng 1 nửa của đoạn thẳng pStart, pEnd
+										 double r;
+										 calculateDistance(p1, p2, out r);
+										 r /= 2;
 
-			// Ban kinh bằng 1 nửa của đoạn thẳng pStart, pEnd
+										 // Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
+										 int xc = (p1.X + p2.X) / 2;
+										 int yc = gl.RenderContextProvider.Height - ((p1.Y + p2.Y) / 2);
+										 */
+
+			// Tinh lai toa do y cua pStart, pEnd
+			Point _p1, _p2;
+			_p1 = new Point(p1.X, gl.RenderContextProvider.Height - p1.Y);
+			_p2 = new Point(p2.X, gl.RenderContextProvider.Height - p2.Y);
+
+			// Lay do dan ra cua X
+			int stretchX = Math.Abs(_p2.X - _p1.X);
+			Point pSymmetry; // Diem doi xung cua p1 
+							 // Co 4 TH de xet
+							 // TH1: x, y cung tang
+							 // TH2: x tang, y giam
+							 // TH3: x giam, y tang
+							 // TH4: x giam, y giam
+
+			int dx = _p2.X - _p1.X;
+			int dy = _p2.Y - _p1.Y;
+
+			if (dx > 0 && dy > 0)
+				pSymmetry = new Point(_p1.X + stretchX, _p1.Y + stretchX);
+			else if (dx > 0 && dy <= 0)
+				pSymmetry = new Point(_p1.X + stretchX, _p1.Y - stretchX);
+			else if (dx <= 0 && dy > 0)
+				pSymmetry = new Point(_p1.X - stretchX, _p1.Y + stretchX);
+			else
+				pSymmetry = new Point(_p1.X - stretchX, _p1.Y - stretchX);
+
+
+
+			// Ban kinh la cung chinh la canh cua hinh vuong 
+			//do duong tron noi tiep hinh vuong co duong cheo di qua p1 va pSymmetry
 			double r;
-			calculateDistance(p1, p2, out r);
-			r /= 2;
+			calculateDistance(_p1, pSymmetry, out r);
+			r = r / (2 * Math.Sqrt(2));
 
-			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
-			int xc = (p1.X + p2.X) / 2;
-			int yc = (p1.Y + p2.Y) / 2;
+			// Tam duong tron tai trung diem cua doan thang noi pStart và pSymmetry
+			int xc = (_p1.X + pSymmetry.X) / 2;
+			int yc = (_p1.Y + pSymmetry.Y) / 2;
 
 			int x = 0;
 			int y = (int)r;
@@ -802,7 +950,7 @@ namespace SharpGL
 
 			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
 			int xc = (pStart.X + pEnd.X) / 2;
-			int yc = (pStart.Y + pEnd.Y) / 2;
+			int yc = gl.RenderContextProvider.Height - ((pStart.Y + pEnd.Y) / 2);
 
 			int x = 0;
 			int y = (int)r;
@@ -843,7 +991,7 @@ namespace SharpGL
 
 			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
 			int xc = (p1.X + p2.X) / 2;
-			int yc = (p1.Y + p2.Y) / 2;
+			int yc = gl.RenderContextProvider.Height - ((p1.Y + p2.Y) / 2);
 
 			int x = 0;
 			int y = (int)r;
@@ -882,7 +1030,7 @@ namespace SharpGL
 
 			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
 			int xc = (pStart.X + pEnd.X) / 2;
-			int yc = (pStart.Y + pEnd.Y) / 2;
+			int yc = gl.RenderContextProvider.Height - ((pStart.Y + pEnd.Y) / 2);
 
 			int x = 0;
 			int y = (int)r;
@@ -920,7 +1068,7 @@ namespace SharpGL
 
 			// Tam duong tron tai trung diem cua doan thang noi pStart và pEnd
 			int xc = (p1.X + p2.X) / 2;
-			int yc = (p1.Y + p2.Y) / 2;
+			int yc = gl.RenderContextProvider.Height - ((p1.Y + p2.Y) / 2);
 
 			int x = 0;
 			int y = (int)r;
@@ -953,7 +1101,7 @@ namespace SharpGL
 				drawLine(gl, pEnd, pStart);
 				isDown = 0; // Ket thuc ve da giac
 				isRigtClick = false; // reset lai
-				// reset lai cac toa do
+									 // reset lai cac toa do
 				pStart = new Point(-1, -1);
 				pEnd = new Point(-1, -1);
 				pMid = new Point(-1, -1);
@@ -981,19 +1129,20 @@ namespace SharpGL
 			// Tinh khoang doi trx va try
 			int xTrans = menuEnd.X - menuStart.X;
 			int yTrans = -menuEnd.Y + menuStart.Y;
+
 			// Thoi hien translate
 			gl.Translate(xTrans, yTrans, 0);
 
 			isPushMatrix = true;
 		}
-	
+
 		private void repaint(OpenGL gl)
 		{
 			for (int i = 0; i < bm.Count; i++)
 			{
 				// KHoi tao 2 bien p1, p2
 				Point p1, p2;
-				
+
 				// Chon mau
 				gl.Color(bm[i].colorUse.R / 255.0, bm[i].colorUse.G / 255.0, bm[i].colorUse.B / 255.0, 0);
 				// Thiet lap size cua net ve
@@ -1056,6 +1205,206 @@ namespace SharpGL
 			}
 		}
 
+		// Ham draw fill rectangle
+		private void drawFillRec(OpenGL gl, Point p1, Point p2)
+		{
+			gl.Begin(OpenGL.GL_QUADS); // Dung ham ve tu giac
+									   // Toa do diem dau (x1, y1)
+									   // Toa do diem cuoi (x2, y2)
+			gl.Vertex(p1.X, gl.RenderContextProvider.Height - p1.Y);
+			// Toa do diem 2 (x2, y1)
+			gl.Vertex(p2.X, gl.RenderContextProvider.Height - p1.Y);
+			// Toa do diem 3 (x2, y2)
+			gl.Vertex(p2.X, gl.RenderContextProvider.Height - p2.Y);
+			// Toa do diem 4 (x1, y2)
+			gl.Vertex(p1.X, gl.RenderContextProvider.Height - p2.Y);
+			gl.End();
+			gl.Flush();
+		}
+
+		// Ham tinh toan toa do cua control points cua 1 doi tuong va tra ve list cac diem control point cua hinh do
+		// Control Point duoc tinh dua vao diem dau va diem cuoi cua 1 doi tuong
+		private void makeListControlPoints(Point p1, Point p2, ShapeMode sh, out List<Point> res)
+		{
+			res = new List<Point>(); // Khoi tao
+			if (sh == ShapeMode.LINE)
+			{
+				// Duong thang thi chi co 2  control points
+				res.Add(p1);
+				res.Add(p2);
+			}
+			else
+			{
+				int x1, y1;
+				int x2, y2;
+				int averageX;
+				int averageY;
+
+				if (sh == ShapeMode.ELLIPSE || sh == ShapeMode.RECTANGLE)
+				{
+					// Ngoai da giac ra thi cac hinh deu co
+					// 8 control points
+					// Toa do diem dau: (x1, y1)
+					// Toa do diem cuoi: (x2, y2)
+					x1 = p1.X; y1 = p1.Y;
+					x2 = p2.X; y2 = p2.Y;
+
+
+					// Goi averageX, averageY lan lượt là trung bình của x1, x2 va y1, y2
+					averageX = Round((x1 + x2) / 2.0);
+					averageY = Round((y1 + y2) / 2.0);
+
+					res.Add(p1); // Diem 1: (x1, y1)
+					res.Add(new Point(averageX, y1)); // Diem 2: (averageX, y1)
+					res.Add(new Point(x2, y1)); // Diem 3: (x2, y1)
+					res.Add(new Point(x2, averageY)); // Diem 4: (x2, averageY)
+					res.Add(new Point(x2, y2)); // Diem 5: (x2, y2)
+					res.Add(new Point(averageX, y2)); // Diem 6: (averageX, y2)
+					res.Add(new Point(x1, y2)); // Diem 7: (x1, y2)
+					res.Add(new Point(x1, averageY)); // Diem 8: (x1, averageY)
+				}
+				else
+				{
+					// Do cac hinh duong tron, tam giac deu, ngu giac deu, luc giac deu 
+					// deu ve theo cach dong duong tron noi tiep hinh vuong
+					// Cho nen ta can phai tinh lai toa do p2.
+					// Con lai tuong tu nhu Ellipse va Rectangle
+
+					// Lay do dan ra cua X
+					int stretchX = Math.Abs(p2.X - p1.X);
+					Point pSymmetry; // Diem doi xung cua p1 
+									 // Co 4 TH de xet
+									 // TH1: x, y cung tang
+									 // TH2: x tang, y giam
+									 // TH3: x giam, y tang
+									 // TH4: x giam, y giam
+
+					int dx = p2.X - p1.X;
+					int dy = p2.Y - p1.Y;
+
+					if (dx > 0 && dy > 0)
+						pSymmetry = new Point(p1.X + stretchX, p1.Y + stretchX);
+					else if (dx > 0 && dy <= 0)
+						pSymmetry = new Point(p1.X + stretchX, p1.Y - stretchX);
+					else if (dx <= 0 && dy > 0)
+						pSymmetry = new Point(p1.X - stretchX, p1.Y + stretchX);
+					else
+						pSymmetry = new Point(p1.X - stretchX, p1.Y - stretchX);
+
+					if (sh == ShapeMode.CIRCLE)
+					{
+						// Toa do diem dau: p1(x1, y1)
+						// Toa do diem cuoi: pSymmetry(x2, y2)
+						x1 = p1.X; y1 = p1.Y;
+						x2 = pSymmetry.X; y2 = pSymmetry.Y;
+
+						// Goi averageX, averageY lan lượt là trung bình của x1, x2 va y1, y2
+						averageX = Round((x1 + x2) / 2.0);
+						averageY = Round((y1 + y2) / 2.0);
+
+						res.Add(new Point(x1, y1)); // Diem 1: (x1, y1)
+						res.Add(new Point(averageX, y1)); // Diem 2: (averageX, y1)
+						res.Add(new Point(x2, y1)); // Diem 3: (x2, y1)
+						res.Add(new Point(x2, averageY)); // Diem 4: (x2, averageY)
+						res.Add(new Point(x2, y2)); // Diem 5: (x2, y2)
+						res.Add(new Point(averageX, y2)); // Diem 6: (averageX, y2)
+						res.Add(new Point(x1, y2)); // Diem 7: (x1, y2)
+						res.Add(new Point(x1, averageY)); // Diem 8: (x1, averageY)
+
+					}
+					else if (sh == ShapeMode.TRIANGLE)
+					{
+						const int totalSegments = 3;
+
+						OpenGL gl = openGLControl.OpenGL;
+
+						// Tinh lai toa doa p1, pSymmetry do tinh diem cua tam giac so thuc hien phep quay
+						p1 = new Point(p1.X, gl.RenderContextProvider.Height - p1.Y);
+						pSymmetry = new Point(pSymmetry.X, gl.RenderContextProvider.Height - pSymmetry.Y);
+
+						// Ban kinh la cung chinh la canh cua hinh vuong 
+						//do duong tron noi tiep hinh vuong co duong cheo di qua p1 va pSymmetry
+						double r;
+						calculateDistance(p1, pSymmetry, out r);
+						r = r / (2 * Math.Sqrt(2));
+
+						// Tam duong tron tai trung diem cua doan thang noi pStart và pSymmetry
+						int xc = (p1.X + pSymmetry.X) / 2;
+						int yc = (p1.Y + pSymmetry.Y) / 2;
+
+						// Gia su xet tai tam 0(0, 0)
+						int x = 0;
+						int y = (int)r;
+
+						Point pV1, pV2, pV3;
+
+						// Đổi về radian
+						double alpha_rad = 0 * Math.PI / 180;
+						pV1 = new Point(Round(xc + x * Math.Cos(alpha_rad) - y * Math.Sin(alpha_rad))
+						, Round(yc + x * Math.Sin(alpha_rad) + y * Math.Cos(alpha_rad)));
+
+						alpha_rad = 120 * Math.PI / 180;
+						pV2 = new Point(Round(xc + x * Math.Cos(alpha_rad) - y * Math.Sin(alpha_rad))
+								, Round(yc + x * Math.Sin(alpha_rad) + y * Math.Cos(alpha_rad)));
+
+						alpha_rad = 240 * Math.PI / 180;
+						pV3 = new Point(Round(xc + x * Math.Cos(alpha_rad) - y * Math.Sin(alpha_rad))
+								, Round(yc + x * Math.Sin(alpha_rad) + y * Math.Cos(alpha_rad)));
+
+
+						// Tinh x1, y1 va x2, y2
+						// Va tinh lai toa do y cua 2 diem do do ham drawFillRec no tu dong mac dinh toa do truyen vao la cua winform
+						x1 = pV2.X; y1 = gl.RenderContextProvider.Height - pV1.Y;
+						x2 = pV3.X; y2 = gl.RenderContextProvider.Height - pV3.Y;
+
+						// Goi averageX, averageY lan lượt là trung bình của x1, x2 va y1, y2
+						averageX = Round((x1 + x2) / 2.0);
+						averageY = Round((y1 + y2) / 2.0);
+
+						res.Add(new Point(x1, y1)); // Diem 1: (x1, y1)
+						res.Add(new Point(averageX, y1)); // Diem 2: (averageX, y1)
+						res.Add(new Point(x2, y1)); // Diem 3: (x2, y1)
+						res.Add(new Point(x2, averageY)); // Diem 4: (x2, averageY)
+						res.Add(new Point(x2, y2)); // Diem 5: (x2, y2)
+						res.Add(new Point(averageX, y2)); // Diem 6: (averageX, y2)
+						res.Add(new Point(x1, y2)); // Diem 7: (x1, y2)
+						res.Add(new Point(x1, averageY)); // Diem 8: (x1, averageY)
+					}
+					else if (sh == ShapeMode.PENTAGON)
+					{
+
+					}
+					else if (sh == ShapeMode.HEXAGON)
+					{
+
+					}
+					
+				}
+			}
+		}
+
+		private void drawControlPoints(Point p1, Point p2, ShapeMode sh)
+		{
+			// get the OpenGL object
+			OpenGL gl = openGLControl.OpenGL;
+			// Chon mau de ve control points. Chon mau Light grey
+			gl.Color(Color.DarkOrange.R / 255.0, Color.DarkOrange.G / 255.0, Color.DarkOrange.B / 255.0, 0);
+			gl.LineWidth(1); // Size cua net ve
+
+			// Tim cac control points cua doi tuong nay
+			List<Point> controlPoints;
+			makeListControlPoints(p1, p2, sh, out controlPoints);
+			Point p3, p4; // La toa do diem dau va diem cuoi cua 1 control point can ve. Control point la hinh vuong (1x1)
+						  // voi p3p4 la duong cheo cua hinh vuong nay
+
+			foreach (var p in controlPoints)
+			{
+				p3 = new Point(p.X + 3, p.Y + 3);
+				p4 = new Point(p.X - 3, p.Y - 3);
+				drawFillRec(gl, p3, p4);
+			}
+		}
+
 		private void openGLControl_OpenGLDraw(object sender, RenderEventArgs args)
 		{
 			if (isDown == 1) // Neu nguoi dung dang Mouse down thi moi ve
@@ -1092,7 +1441,7 @@ namespace SharpGL
 				{
 
 				}
-				else if (chooseItem == SharpGL.Menu.SCALE) // Zoom
+				else if (chooseItem == SharpGL.Menu.SCALE) // Scale/Zoom
 				{
 
 				}
@@ -1149,7 +1498,7 @@ namespace SharpGL
 					gl.PopMatrix();
 				}
 			}
-			
+
 		}
 
 
@@ -1197,7 +1546,7 @@ namespace SharpGL
 
 			// Thuat toan to mau theo vet loang
 			// Neu color cua pixel khac bien va chua to mau
-			if (color[0] == 0 && color[1] == 0 && color[2] == 0)
+			if (color[0] != 0 && color[1] != 0 && color[2] != 0)
 			{
 				setPixelColor(pStart);
 				floodFill(x + 1, y);
@@ -1270,6 +1619,9 @@ namespace SharpGL
 					openGLControl.Cursor = Cursors.Default; // Tra ve con tro chuot nhu cu
 					isDown = 0; // chuot het di chuyen
 
+					// Khi nguoi dung vua ve xong hinh thi ve control points
+					drawControlPoints(pStart, pEnd, shShape);
+
 					// Thuc hien lui doi tuong da ve vao List<MyBitMap> bm
 					MyBitMap tmp = new MyBitMap(colorUserColor, shShape, currentSize);
 					tmp.controlPoints.Add(pStart);
@@ -1277,15 +1629,11 @@ namespace SharpGL
 					// Them tmp vao bm
 					bm.Add(tmp);
 
-					//==================>>
-					// Tạm thời không gán lại
-					// mình sẽ tìm phương thức khác sau vì các thao tác chuyển dời ảnh cần các điểm này để vẽ lại
-
 					// reset lai toa do
 					pStart = new Point(-1, -1);
 					pEnd = new Point(-1, -1);
 				}
-				
+
 			}
 
 		}
@@ -1314,7 +1662,7 @@ namespace SharpGL
 			if (e.Button == MouseButtons.Right && shShape == ShapeMode.POLYGON)
 			{
 				isRigtClick = true; // Danh dau da click chuot phai
-				// Luu them diem pStart vao bm để thực hiện kẻ đường thẳng từ pEnd cuối cùng cho đến pStart
+									// Luu them diem pStart vao bm để thực hiện kẻ đường thẳng từ pEnd cuối cùng cho đến pStart
 				bm[bm.Count - 1].controlPoints.Add(pStart);
 			}
 		}
@@ -1382,17 +1730,18 @@ namespace SharpGL
 						// Luu them toa doa cac dinh khac cua da giac moi lan user click chuot
 						bm[bm.Count - 1].controlPoints.Add(e.Location);
 					}
-					
+
 				}
-				
-					
+
+
 			}
 			else
 			{
 				// Cap nhat toa do cho viec thuc hien cac phep transform
 				menuStart = menuEnd = new Point(e.X, e.Y);
 			}
-
+			// In toa do khi click chuot 
+			lb_Coor.Text = e.X.ToString() + ", " + e.Y.ToString();
 			openGLControl.Cursor = Cursors.Cross; // Thay doi hinh dang con tro chuot khi ve
 			isDown = 1; // Chuot dang bat dau di chuyen
 		}
