@@ -1137,7 +1137,7 @@ namespace SharpGL
 					case ShapeMode.FLOOD_FILL:
 						p1 = new Point(bm[i].controlPoints[0].X, bm[i].controlPoints[0].Y);
 						// To mau bang thuat toan flood fill
-						floodFill(p1.X, p1.Y);
+						floodFill(gl, p1.X, p1.Y, colorUserColor, bm[i].colorUse);
 						break;
 				}
 			}
@@ -1530,7 +1530,7 @@ namespace SharpGL
 						break;
 					case ShapeMode.FLOOD_FILL:
 						// To mau bang thuat toan flood fill
-						floodFill(pStart.X, pStart.Y);
+						floodFill(gl, pStart.X, pStart.Y, colorUserColor, Color.Black);
 						break;
 				}
 
@@ -1565,40 +1565,50 @@ namespace SharpGL
 		}
 
 		// Ham getPixelColor
-		private void getPixelColor(Point p, out Byte[] color)
+		private void getPixelColor(OpenGL gl, int x, int y, out Byte[] color)
 		{
-			OpenGL gl = openGLControl.OpenGL;
-			color = new Byte[3];
-
-			gl.ReadPixels(p.X, p.Y, 1, 1, OpenGL.GL_RGB, OpenGL.GL_FLOAT, color);
+			color = new Byte[4 * 1 * 1]; // Components * width * height (RGBA)
+			gl.ReadPixels(x, gl.RenderContextProvider.Height - y, 1, 1, OpenGL.GL_RGBA, OpenGL.GL_UNSIGNED_BYTE, color);
 		}
 
 		// Ham set pixel color
-		private void setPixelColor(Point p)
+		private void setPixelColor(OpenGL gl, int x, int y, Color fill_color)
 		{
-			OpenGL gl = openGLControl.OpenGL;
-			// set mau
-			gl.Color(colorUserColor.R / 255.0, colorUserColor.G / 255.0, colorUserColor.B / 255.0, 0);
+
+			//Byte[] color = new Byte[4] { fill_color.R, fill_color.G, fill_color.B, fill_color.A };
+			//// set mau
+			//gl.DrawPixels(2, 2, OpenGL.GL_RGBA, color);
+
+			gl.Color(fill_color.R, fill_color.G, fill_color.B, fill_color.A);
+			gl.PointSize(10);
 			gl.Begin(OpenGL.GL_POINTS);
-			gl.Vertex(p.X, p.Y);
+			gl.Vertex(x, gl.RenderContextProvider.Height - y);
 			gl.End();
 			gl.Flush();
+
 		}
 
-		private void floodFill(int x, int y)
+		// Ham to mau theo vet loang
+		private void floodFill(OpenGL gl, int x, int y, Color fill_color, Color old_color)
 		{
-			Byte[] color;
-			getPixelColor(pStart, out color);
+			Byte[] current_color;
+			getPixelColor(gl, x, y, out current_color);
 
 			// Thuat toan to mau theo vet loang
-			// Neu color cua pixel khac bien va chua to mau
-			if (color[0] != 0 && color[1] != 0 && color[2] != 0)
+			// Neu color cua pixel hiện tai chưa tô và khác màu của biên
+			//if ((current_color[0] != fill_color.R && current_color[1] != fill_color.G && current_color[2] != fill_color.B 
+			//	&& current_color[3] != fill_color.A) &&
+			//	(current_color[0] != old_color.R && current_color[1] != old_color.G && current_color[2] != old_color.B 
+			//	&& current_color[3] != old_color.A))
+			if (current_color[0] == old_color.R && current_color[1] == old_color.G && current_color[2] == old_color.B
+				&& current_color[3] == old_color.A)
 			{
-				setPixelColor(pStart);
-				floodFill(x + 1, y);
-				floodFill(x - 1, y);
-				floodFill(x, y + 1);
-				floodFill(x, y - 1);
+				setPixelColor(gl, x, y, fill_color);
+				floodFill(gl, x + 1, y, fill_color, old_color);
+				floodFill(gl, x - 1, y, fill_color, old_color);
+				floodFill(gl, x, y + 1, fill_color, old_color);
+				floodFill(gl, x, y - 1, fill_color, old_color);
+
 			}
 		}
 
