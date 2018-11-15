@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
+using System.Runtime.InteropServices; // Su dung ham chuyen doi sang IntPtr
 
 namespace SharpGL
 {
@@ -1536,7 +1536,8 @@ namespace SharpGL
 						break;
 					case ShapeMode.FLOOD_FILL:
 						// To mau bang thuat toan flood fill
-						floodFill(gl, pStart.X, pStart.Y, colorUserColor, Color.Black);
+						//floodFill(gl, pStart.X, pStart.Y, colorUserColor, Color.Black);
+						floodFillScanLineStack(gl, pStart.X, pStart.Y, colorUserColor, Color.Black);
 						break;
 				}
 
@@ -1657,6 +1658,74 @@ namespace SharpGL
 			}
 			#endregion
 
+		}
+
+		// Ham to mau floodFill x Scanline (Stack)
+		private void floodFillScanLineStack(OpenGL gl, int x, int y, Color fill_color, Color old_color) {
+			if (fill_color == old_color) return;
+
+			int x1;
+			bool spanAbove, spanBelow;
+
+			Stack<Point> s = new Stack<Point>();
+			s.Push(new Point(x, y));
+
+			while (s.Count != 0) { // Neu stack khac rong
+				Point p = s.Pop();
+				x = p.X;	y = p.Y; // Cap nhat lai x, y
+
+				x1 = x;
+				// Lay pixel cua x1, y
+				Byte[] pixel;
+				getPixelColor(gl, x1, y, out pixel);
+				Color color = new Color();
+				color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
+				while (x1 >= 0 && color.Equals(old_color)) {
+					x1--;
+					getPixelColor(gl, x1, y, out pixel);
+					color = new Color();
+					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
+				}
+				x1++;
+
+				spanAbove = spanBelow = false;
+
+				getPixelColor(gl, x1, y, out pixel);
+				color = new Color();
+				color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
+				while (x1 < gl.RenderContextProvider.Width && color.Equals(old_color)) {
+					setPixelColor(gl, x1, y, fill_color);
+
+					getPixelColor(gl, x1, y - 1, out pixel);
+					color = new Color();
+					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
+					if (!spanAbove && gl.RenderContextProvider.Height - y > 0 && color.Equals(old_color))
+					{
+						s.Push(new Point(x1, y - 1));
+						spanAbove = true;
+					}
+					else if (spanAbove && gl.RenderContextProvider.Height - y > 0 && !color.Equals(old_color)) {
+						spanAbove = false;
+					}
+
+					getPixelColor(gl, x1, y + 1, out pixel);
+					color = new Color();
+					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
+					if (!spanBelow && gl.RenderContextProvider.Height - y < gl.RenderContextProvider.Height - 1 && color.Equals(old_color))
+					{
+						s.Push(new Point(x1, y + 1));
+						spanBelow = true;
+					}
+					else if (spanAbove && gl.RenderContextProvider.Height - y < gl.RenderContextProvider.Height - 1 && !color.Equals(old_color))
+					{
+						spanBelow = false;
+					}
+					x1++;
+					getPixelColor(gl, x1, y, out pixel);
+					color = new Color();
+					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
+				}
+			}
 		}
 
 		// Ham xu ly su kien to mau theo vet loang
