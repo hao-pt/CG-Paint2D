@@ -1231,7 +1231,8 @@ namespace SharpGL
 					}
 					else if (sh == ShapeMode.TRIANGLE)
 					{
-						const int totalSegments = 3;
+						// Tinh lại tọa độ của pStart, pEnd dựa theo đỉnh của tam giác đều
+						// Mỗi đỉnh tam giác đều xoay 1 góc 120 độ
 
 						OpenGL gl = openGLControl.OpenGL;
 
@@ -1289,10 +1290,40 @@ namespace SharpGL
 					}
 					else if (sh == ShapeMode.PENTAGON)
 					{
-						// Toa do diem dau: p1(x1, y1)
-						// Toa do diem cuoi: pSymmetry(x2, y2)
-						x1 = p1.X; y1 = p1.Y;
-						x2 = p2.X; y2 = p2.Y;
+						// Tinh lại tọa độ của pStart, pEnd dựa theo đỉnh của Pentagon
+						// Mỗi đỉnh tam giác đều xoay 1 góc 72 độ
+						OpenGL gl = openGLControl.OpenGL;
+
+						// Tinh lai toa doa p1, pSymmetry do tinh diem cua tam giac so thuc hien phep quay
+						p1 = new Point(p1.X, gl.RenderContextProvider.Height - p1.Y);
+						p2 = new Point(p2.X, gl.RenderContextProvider.Height - p2.Y);
+
+						// Ban kinh la cung chinh la canh cua hinh vuong 
+						//do duong tron noi tiep hinh vuong co duong cheo di qua p1 va pSymmetry
+						double r;
+						calculateDistance(p1, p2, out r);
+						r = r / (2 * Math.Sqrt(2));
+
+						// Tam duong tron tai trung diem cua doan thang noi pStart và pSymmetry
+						int xc = (p1.X + p2.X) / 2;
+						int yc = (p1.Y + p2.Y) / 2;
+
+						// Gia su xet tai tam 0(0, 0)
+						int x = 0;
+						int y = (int)r;
+
+						Point pV3; // Tinh toa do đỉnh thứ 3 của pentagon theo ngược chiều kim đống hồ
+
+						// Đổi về radian
+						double alpha_rad = 144 * Math.PI / 180;
+						pV3 = new Point(Round(xc + x * Math.Cos(alpha_rad) - y * Math.Sin(alpha_rad))
+						, Round(yc + x * Math.Sin(alpha_rad) + y * Math.Cos(alpha_rad)));
+
+
+						// Tinh x1, y1 va x2, y2
+						// Va tinh lai toa do y cua 2 diem do do ham drawFillRec no tu dong mac dinh toa do truyen vao la cua winform
+						x1 = p1.X; y1 = gl.RenderContextProvider.Height - p1.Y;
+						x2 = p2.X; y2 = gl.RenderContextProvider.Height - pV3.Y;
 
 						// Goi averageX, averageY lan lượt là trung bình của x1, x2 va y1, y2
 						averageX = Round((x1 + x2) / 2.0);
@@ -1309,10 +1340,43 @@ namespace SharpGL
 					}
 					else if (sh == ShapeMode.HEXAGON)
 					{
-						// Toa do diem dau: p1(x1, y1)
-						// Toa do diem cuoi: pSymmetry(x2, y2)
-						x1 = p1.X; y1 = p1.Y;
-						x2 = p2.X; y2 = p2.Y;
+						// Tinh lại tọa độ của pStart, pEnd dựa theo đỉnh của Hexagon
+						// Mỗi đỉnh tam giác đều xoay 1 góc 60 độ
+						OpenGL gl = openGLControl.OpenGL;
+
+						// Tinh lai toa doa p1, pSymmetry do tinh diem cua tam giac so thuc hien phep quay
+						p1 = new Point(p1.X, gl.RenderContextProvider.Height - p1.Y);
+						p2 = new Point(p2.X, gl.RenderContextProvider.Height - p2.Y);
+
+						// Ban kinh la cung chinh la canh cua hinh vuong 
+						//do duong tron noi tiep hinh vuong co duong cheo di qua p1 va pSymmetry
+						double r;
+						calculateDistance(p1, p2, out r);
+						r = r / (2 * Math.Sqrt(2));
+
+						// Tam duong tron tai trung diem cua doan thang noi pStart và pSymmetry
+						int xc = (p1.X + p2.X) / 2;
+						int yc = (p1.Y + p2.Y) / 2;
+
+						// Gia su xet tai tam 0(0, 0)
+						int x = 0;
+						int y = (int)r;
+
+						Point pV2, pV6; // Tinh toa do đỉnh thứ 2 va 6 của hexagon theo ngược chiều kim đống hồ
+
+						// Đổi về radian
+						double alpha_rad = 60 * Math.PI / 180;
+						pV2 = new Point(Round(xc + x * Math.Cos(alpha_rad) - y * Math.Sin(alpha_rad))
+						, Round(yc + x * Math.Sin(alpha_rad) + y * Math.Cos(alpha_rad)));
+
+						alpha_rad = 300 * Math.PI / 180;
+						pV6 = new Point(Round(xc + x * Math.Cos(alpha_rad) - y * Math.Sin(alpha_rad))
+						, Round(yc + x * Math.Sin(alpha_rad) + y * Math.Cos(alpha_rad)));
+
+						// Tinh x1, y1 va x2, y2
+						// Va tinh lai toa do y cua 2 diem do do ham drawFillRec no tu dong mac dinh toa do truyen vao la cua winform
+						x1 = pV2.X; y1 = gl.RenderContextProvider.Height - p1.Y;
+						x2 = pV6.X; y2 = gl.RenderContextProvider.Height - p2.Y;
 
 						// Goi averageX, averageY lan lượt là trung bình của x1, x2 va y1, y2
 						averageX = Round((x1 + x2) / 2.0);
