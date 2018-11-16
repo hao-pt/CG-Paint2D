@@ -109,6 +109,8 @@ namespace SharpGL
 		bool selected = false;
 		// Tọa độ điểm di chuyển sau khi chọn menu de thuc hien phep translate, rotate & scale
 		Point menuStart, menuEnd;
+		// List luu cac dinh cua da giac de ho tro thuc hien affine
+		List<Point> polygonVertices;
 
 		// Mac dinh check list box la drawing
 		Menu chooseItem = SharpGL.Menu.DRAWING;
@@ -1129,9 +1131,25 @@ namespace SharpGL
 		{
 			if (lstPoints.Count > 1)
 			{
-				for (int i = 0; i < lstPoints.Count - 1; i++)
+				if (chooseItem == SharpGL.Menu.DRAWING)
 				{
-					drawLine(gl, lstPoints[i], lstPoints[i + 1]);
+					for (int i = 0; i < lstPoints.Count - 1; i++)
+					{
+						drawLine(gl, lstPoints[i], lstPoints[i + 1]);
+					}
+				}
+				else if (chooseItem == SharpGL.Menu.TRANSLATE)
+				{
+					// Tinh khoang doi trx va try
+					int xTrans = menuEnd.X - menuStart.X;
+					int yTrans = menuEnd.Y - menuStart.Y;
+					for (int i = 0; i < lstPoints.Count - 1; i++)
+					{
+						Point p1 = new Point(lstPoints[i].X + xTrans, lstPoints[i].Y + yTrans);
+						Point p2 = new Point(lstPoints[i + 1].X + xTrans, lstPoints[i + 1].Y + yTrans);
+						drawLine(gl, lstPoints[i], lstPoints[i + 1]);
+					}
+
 				}
 			}
 		}
@@ -1143,10 +1161,8 @@ namespace SharpGL
 			// Tinh khoang doi trx va try
 			int xTrans = menuEnd.X - menuStart.X;
 			int yTrans = -menuEnd.Y + menuStart.Y;
-
 			// Thoi hien translate
 			gl.Translate(xTrans, yTrans, 0);
-
 			isPushMatrix = true;
 		}
 
@@ -1960,13 +1976,21 @@ namespace SharpGL
 						if (!isNull)
 						{
 							drawControlPoints(obj.controlPoints, obj.type);
-							bm.RemoveAt(indexObject); // Xoa khoi list
-							bm.Add(new MyBitMap(obj.controlPoints, obj.colorUse, obj.type, obj.brushSize));
 							shShape = obj.type;
 							colorUserColor = obj.colorUse;
 							currentSize = obj.brushSize;
 							pStart = obj.controlPoints[0];
 							pEnd = obj.controlPoints[1];
+
+							if (obj.type == ShapeMode.POLYGON)
+							{
+								polygonVertices = new List<Point>(); // khoi tao
+								// Chep cac dinh da giac vao list
+								foreach (var p in obj.controlPoints) {
+									polygonVertices.Add(p);
+								}
+							}
+							// Xoa doi tuong khoi bm
 							bm.RemoveAt(indexObject);
 							selected = true;
 						}
@@ -2055,8 +2079,11 @@ namespace SharpGL
 						drawHexagon(gl);
 						break;
 					case ShapeMode.POLYGON:
-						// Ve da giac
-						drawPolygon(gl);
+						if (chooseItem == SharpGL.Menu.DRAWING)
+							// Ve da giac
+							drawPolygon(gl);
+						else // Neu dang thuc hien phep bien doi affine
+							drawPolygon(gl, polygonVertices);
 						break;
 					case ShapeMode.FLOOD_FILL:
 						// To mau bang thuat toan flood fill
@@ -2434,20 +2461,38 @@ namespace SharpGL
 					// Tinh khoang doi trx va try
 					int xTrans = menuEnd.X - menuStart.X;
 					int yTrans = menuEnd.Y - menuStart.Y;
-					pStart = new Point(pStart.X + xTrans, pStart.Y + yTrans);
-					pEnd = new Point(pEnd.X + xTrans, pEnd.Y + yTrans);
 					// Tao lst
 					List<Point> lst = new List<Point>();
-					lst.Add(pStart);
-					lst.Add(pEnd);
+
+					if (shShape != ShapeMode.POLYGON)
+					{
+						pStart = new Point(pStart.X + xTrans, pStart.Y + yTrans);
+						pEnd = new Point(pEnd.X + xTrans, pEnd.Y + yTrans);
+						lst.Add(pStart);
+						lst.Add(pEnd);
+						// Thuc hien lui doi tuong da ve vao List<MyBitMap> bm
+						MyBitMap tmp = new MyBitMap(colorUserColor, shShape, currentSize);
+						tmp.controlPoints.Add(pStart);
+						tmp.controlPoints.Add(pEnd);
+						// Them tmp vao bm
+						bm.Add(tmp);
+					}
+					else
+					{
+						foreach (var p in polygonVertices)
+						{
+							lst.Add(new Point(p.X + xTrans, p.Y + yTrans));
+						}
+						// Thuc hien lui doi tuong da ve vao List<MyBitMap> bm
+						MyBitMap tmp = new MyBitMap(colorUserColor, shShape, currentSize);
+						tmp.controlPoints.AddRange(lst);
+						// Them tmp vao bm
+						bm.Add(tmp);
+					}
+
 					// Khi nguoi dung vua ve xong hinh thi ve control points
 					drawControlPoints(lst, shShape);
-					// Thuc hien lui doi tuong da ve vao List<MyBitMap> bm
-					MyBitMap tmp = new MyBitMap(colorUserColor, shShape, currentSize);
-					tmp.controlPoints.Add(pStart);
-					tmp.controlPoints.Add(pEnd);
-					// Them tmp vao bm
-					bm.Add(tmp);
+
 				}
 				else if (chooseItem == SharpGL.Menu.SCALE)
 				{
@@ -2552,6 +2597,8 @@ namespace SharpGL
 						//{
 						//	chkLstBox_Options.SetItemChecked(i, false);
 						//}
+
+
 						drawControlPoints(tmp.controlPoints, shShape);
 					}
 
