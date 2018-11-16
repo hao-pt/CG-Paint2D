@@ -509,7 +509,6 @@ namespace SharpGL
 			// Ve 4 diem dau
 			put4Pixel(gl, xc, yc, x, y);
 			// Xét vùng 1: 0 < |dy/dx| <= 1
-			int k = 0;
 			while (A < B)
 			{
 				x++;
@@ -534,7 +533,6 @@ namespace SharpGL
 			B = 2 * rx2 * ylast;
 			p = ry2 * Math.Pow((xlast + 1 / 2), 2) + rx2 * Math.Pow((ylast - 1), 2) - rx2 * ry2;
 
-			k = 0;
 			while (y != 0)
 			{
 				y--;
@@ -610,7 +608,6 @@ namespace SharpGL
 			// Ve 4 diem dau
 			put4Pixel(gl, xc, yc, x, y, pointSize);
 			// Xét vùng 1: 0 < |dy/dx| <= 1
-			int k = 0;
 			while (A < B)
 			{
 				x++;
@@ -635,7 +632,6 @@ namespace SharpGL
 			B = 2 * rx2 * ylast;
 			p = ry2 * Math.Pow((xlast + 1 / 2), 2) + rx2 * Math.Pow((ylast - 1), 2) - rx2 * ry2;
 
-			k = 0;
 			while (y != 0)
 			{
 				y--;
@@ -1760,7 +1756,7 @@ namespace SharpGL
 		// Ham set pixel color
 		private void setPixelColor(OpenGL gl, int x, int y, Color fill_color)
 		{
-
+			#region Using glDrawPixel and RasterPos
 			//Byte[] color = new Byte[4] { fill_color.R, fill_color.G, fill_color.B, fill_color.A };
 			//int size = color.Length * Marshal.SizeOf(color[0]); // Tinh kich thuoc cua mang byte
 			//IntPtr pnt = Marshal.AllocHGlobal(size); // Khoi tao vung nho cho pnt
@@ -1774,15 +1770,15 @@ namespace SharpGL
 
 			//// Free the unmanaged memory.
 			//Marshal.FreeHGlobal(pnt);
-
+			#endregion
+			#region Using Point
 			gl.Color(fill_color.R / 255.0, fill_color.G / 255.0, fill_color.B / 255.0, fill_color.A);
 			gl.PointSize(2);
 			gl.Begin(OpenGL.GL_POINTS);
 			gl.Vertex(x, gl.RenderContextProvider.Height - y);
 			gl.End();
 			gl.Flush();
-
-
+			#endregion
 		}
 
 		// Ham to mau theo vet loang
@@ -2040,6 +2036,11 @@ namespace SharpGL
 		private void bt_Select_Click(object sender, EventArgs e)
 		{
 			chooseItem = SharpGL.Menu.SELECT;
+			// Unchecked các menu còn lại
+			for (int i = 0; i < 4; i++)
+			{
+				chkLstBox_Options.SetItemChecked(i, false);
+			}
 		}
 
 		private void chkLstBox_Options_SelectedIndexChanged(object sender, EventArgs e)
