@@ -1178,22 +1178,26 @@ namespace SharpGL
 			calculateDistance(menuEnd, mid, out dis2);
 			// Ti le scale
 			int scaleNumber = (int)(dis2 / dis1);
-			gl.Scale(scaleNumber, 0, 0);
+			
+			gl.Scale((float)menuEnd.X / pEnd.X, menuEnd.Y / pEnd.Y, 0);
 			isPushMatrix = true;
 		}
 
 		// Ham rotate
 		private void rotate(OpenGL gl)
 		{
-			Point CenterRotate = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
-			double rotateAngle = 0;
 			int height = gl.RenderContextProvider.Height;
+			Point CenterRotate = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
+
+			double rotateAngle = 0;
 			// Tọa độ 2 vector
 			int[] vector1 = { 0, 1 };
 			int[] vector2 = { menuEnd.X - CenterRotate.X, -menuEnd.Y + CenterRotate.Y };
+			
 			// Độ dài của 2 vector
 			double length_vector1 = Math.Sqrt(Math.Pow(vector1[0], 2) + Math.Pow(vector1[1], 2));
 			double length_vector2 = Math.Sqrt(Math.Pow(vector2[0], 2) + Math.Pow(vector2[1], 2));
+
 			// Xác định tử và mẫu
 			int Tu = vector1[0] * vector2[0] + vector1[1] * vector2[1];
 			double Mau = length_vector1 * length_vector2;
@@ -1202,6 +1206,8 @@ namespace SharpGL
 				rotateAngle = -rotateAngle;
 
 			gl.PushMatrix();
+
+
 			gl.Translate(CenterRotate.X, gl.RenderContextProvider.Height - CenterRotate.Y, 0f);
 			gl.Rotate(rotateAngle, 0, 0, 1);
 			//gl.Rotate((float)30, 0, 0, 1);
@@ -1292,6 +1298,7 @@ namespace SharpGL
 							findAllVerticesOfObject(obj, out lst_vertices);
 							// Chuyển đổi từ kiểu Point sang MyPoint
 							List<MyPoint> lst_mp_vertices = new List<MyPoint>();
+
 							foreach (var p in lst_vertices)
 							{
 								lst_mp_vertices.Add(new MyPoint(p.X, p.Y));
@@ -2015,6 +2022,7 @@ namespace SharpGL
 							currentSize = obj.brushSize;
 							pStart = obj.controlPoints[0];
 							pEnd = obj.controlPoints[1];
+
 							bm.RemoveAt(indexObject);
 							selected = true;
 						}
@@ -2529,9 +2537,11 @@ namespace SharpGL
 					// Tọa độ 2 vector
 					int[] vector1 = { 0, 1 };
 					int[] vector2 = { menuEnd.X - CenterRotate.X, -menuEnd.Y + CenterRotate.Y };
+
 					// Độ dài của 2 vector
 					double length_vector1 = Math.Sqrt(Math.Pow(vector1[0], 2) + Math.Pow(vector1[1], 2));
 					double length_vector2 = Math.Sqrt(Math.Pow(vector2[0], 2) + Math.Pow(vector2[1], 2));
+
 					// Xác định tử và mẫu
 					int Tu = vector1[0] * vector2[0] + vector1[1] * vector2[1];
 					double Mau = length_vector1 * length_vector2;
@@ -2539,8 +2549,7 @@ namespace SharpGL
 					//if (menuEnd.X > CenterRotate.X)
 					//    rotateAngle = -rotateAngle;
 					if (menuEnd.X < CenterRotate.X)
-						rotateAngle += 90;
-					Point temp = pStart;
+						rotateAngle += 90;				Point temp = pStart;
 
 					double r = rotateAngle * Math.PI / 180;
 					// Toa do sau khi xoay cua pStart va pEnd
@@ -2556,6 +2565,7 @@ namespace SharpGL
 					List<Point> lst = new List<Point>();
 					lst.Add(pStart);
 					lst.Add(pEnd);
+
 					// Khi nguoi dung vua ve xong hinh thi ve control points
 					drawControlPoints(lst, shShape);
 					// Thuc hien lui doi tuong da ve vao List<MyBitMap> bm
