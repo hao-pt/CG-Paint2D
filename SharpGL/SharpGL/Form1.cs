@@ -31,7 +31,8 @@ namespace SharpGL
 		PENTAGON,
 		HEXAGON,
 		POLYGON,
-		FLOOD_FILL
+		FLOOD_FILL,
+        SCAN_LINES
 	}
 
 	// Kiểu enum Menu cho checklistbox
@@ -1169,6 +1170,8 @@ namespace SharpGL
 						// To mau bang thuat toan flood fill
 						floodFill(gl, p1.X, p1.Y, bm[i].colorUse, Color.Black);
 						break;
+                    case ShapeMode.SCAN_LINES:
+                        break;
 				}
 			}
 		}
@@ -1725,6 +1728,9 @@ namespace SharpGL
 						floodFill(gl, pStart.X, pStart.Y, colorUserColor, old_color);
 						//floodFillScanLineStack(gl, pStart.X, pStart.Y, colorUserColor, old_color);
 						break;
+                    case ShapeMode.SCAN_LINES:
+
+                        break;
 				}
 
 				myTimer.Stop(); // ket thuc do
@@ -2112,7 +2118,12 @@ namespace SharpGL
 			}
 		}
 
-		private void chkLstBox_Options_SelectedIndexChanged(object sender, EventArgs e)
+        private void bt_Scan_Lines_Click(object sender, EventArgs e)
+        {
+            shShape = ShapeMode.SCAN_LINES;
+        }
+
+        private void chkLstBox_Options_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			switch (chkLstBox_Options.SelectedIndex)
 			{
