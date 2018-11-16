@@ -1196,7 +1196,8 @@ namespace SharpGL
 					case ShapeMode.FLOOD_FILL:
 						p1 = new Point(bm[i].controlPoints[0].X, bm[i].controlPoints[0].Y);
 						// To mau bang thuat toan flood fill
-						floodFill(gl, p1.X, p1.Y, bm[i].colorUse, Color.Black);
+						//floodFill(gl, p1.X, p1.Y, bm[i].colorUse, Color.Black);
+						floodFillScanLineStack(gl, p1.X, p1.Y, bm[i].colorUse, Color.Black);
 						break;
 				}
 			}
@@ -1774,8 +1775,8 @@ namespace SharpGL
 						getPixelColor(gl, pStart.X, pStart.Y, out pixel);
 						Color old_color = new Color();
 						old_color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
-						floodFill(gl, pStart.X, pStart.Y, colorUserColor, old_color);
-						//floodFillScanLineStack(gl, pStart.X, pStart.Y, colorUserColor, old_color);
+						//floodFill(gl, pStart.X, pStart.Y, colorUserColor, old_color);
+						floodFillScanLineStack(gl, pStart.X, pStart.Y, colorUserColor, old_color);
 						break;
 				}
 
@@ -1931,17 +1932,17 @@ namespace SharpGL
 				while (x1 >= 0 && (color.A == old_color.A && 
 					color.R == old_color.R && color.G == old_color.G && color.B == old_color.B)) 
 				{
-					x1--;
+					x1 -= 2;
 					getPixelColor(gl, x1, y, out pixel);
 					color = new Color();
 					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
 				}
-				x1++; 
+				x1 += 2; 
 				
 				// Danh dau la chua check spanAbove va spanBelow
 				spanAbove = spanBelow = false;
 
-				// LAy pixel
+				// Lay pixel
 				getPixelColor(gl, x1, y, out pixel);
 				color = new Color();
 				color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
@@ -1953,34 +1954,40 @@ namespace SharpGL
 					// Put pixel x1, y cho scanline hien tai
 					setPixelColor(gl, x1, y, fill_color);
 
-					getPixelColor(gl, x1, y - 1, out pixel);
+					getPixelColor(gl, x1, y - 2, out pixel);
 					color = new Color();
 					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
 					// Kiem tra scanline above va gieo hat giong
 					if (!spanAbove && gl.RenderContextProvider.Height - y > 0 && (color.A == old_color.A &&
 					color.R == old_color.R && color.G == old_color.G && color.B == old_color.B))
 					{
-						s.Push(new Point(x1, y - 1));
+						s.Push(new Point(x1, y - 2));
 						spanAbove = true; // Danh dau la da push no vao stack
 					}
-					else if (spanAbove && gl.RenderContextProvider.Height - y > 0 && !color.Equals(old_color))
+					else if (spanAbove && gl.RenderContextProvider.Height - y > 0 && (color.A != old_color.A ||
+					color.R == old_color.R || color.G == old_color.G || color.B == old_color.B))
 					{
 						spanAbove = false;
 					}
 
-					getPixelColor(gl, x1, y + 1, out pixel);
+
+					getPixelColor(gl, x1, y + 2, out pixel);
 					color = new Color();
 					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
-					if (!spanBelow && gl.RenderContextProvider.Height - y < gl.RenderContextProvider.Height - 1 && color.Equals(old_color))
+					// Kiêm tra cho scanline below va gieo hat giong
+					if (!spanBelow && gl.RenderContextProvider.Height - y < gl.RenderContextProvider.Height - 2 
+						&&(color.A == old_color.A && color.R == old_color.R && color.G == old_color.G && color.B == old_color.B))
 					{
-						s.Push(new Point(x1, y + 1));
+						s.Push(new Point(x1, y + 2));
 						spanBelow = true;
 					}
-					else if (spanAbove && gl.RenderContextProvider.Height - y < gl.RenderContextProvider.Height - 1 && !color.Equals(old_color))
+					// Neu hat giong da kiem tra va to mau roi
+					else if (spanAbove && gl.RenderContextProvider.Height - y < gl.RenderContextProvider.Height - 2 
+						&& (color.A != old_color.A || color.R == old_color.R || color.G == old_color.G || color.B == old_color.B))
 					{
 						spanBelow = false;
 					}
-					x1++;
+					x1 += 2;
 					getPixelColor(gl, x1, y, out pixel);
 					color = new Color();
 					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
