@@ -39,7 +39,8 @@ namespace SharpGL
 		DRAWING,
 		TRANSLATE,
 		ROTATE,
-		SCALE
+		SCALE,
+		SELECT
 	}
 
 	// Kieu MyBitMap de luu cac control points da ve
@@ -49,7 +50,7 @@ namespace SharpGL
 		public Color colorUse;
 		public ShapeMode type;
 		public int brushSize;
-		// Phuong thuc khoi tao cho struct MyBitMap
+		// Phuong thuc khoi tao cho struct MyBitMap co 3 tham so
 		public MyBitMap(Color _color, ShapeMode _type, int size)
 		{
 			controlPoints = new List<Point>(); // Khoi tao list
@@ -57,6 +58,22 @@ namespace SharpGL
 			colorUse = _color;
 			type = _type;
 			brushSize = size;
+		}
+		// Phuong thuc khoi tao cho struct MyBitMap co truyen 1 bien MyBitMap
+		public MyBitMap(MyBitMap other)
+		{
+			controlPoints = new List<Point>(other.controlPoints); // Khoi tao list va gan
+			// Gan cac thong so can thiet
+			colorUse = other.colorUse;
+			type = other.type;
+			brushSize = other.brushSize;
+		}
+		// Kiem tra xem struct co null hay khong?
+		public void isNull(out bool flag) {
+			if (controlPoints == null)
+				flag = true;
+			else
+				flag = false;
 		}
 	}
 
@@ -1441,7 +1458,7 @@ namespace SharpGL
 			// Tim cac control points cua doi tuong nay
 			List<Point> controlPoints;
 			makeListControlPoints(p1, p2, sh, out controlPoints);
-			Point p3, p4; // La toa do diem dau va diem cuoi cua 1 control point can ve. Control point la hinh vuong (1x1)
+			//Point p3, p4; // La toa do diem dau va diem cuoi cua 1 control point can ve. Control point la hinh vuong (1x1)
 						  // voi p3p4 la duong cheo cua hinh vuong nay
 
 			foreach (var p in controlPoints)
@@ -1454,6 +1471,68 @@ namespace SharpGL
 				gl.Vertex(p.X, gl.RenderContextProvider.Height - p.Y);
 				gl.End();
 				gl.Flush();
+			}
+		}
+
+		// Kiem tra xem 1 diem co nam ben trong vung cua 1 doi tuong hay khong
+		private void isInside(Point p, int xmin, int xmax, int ymin, int ymax, out bool res) {
+			if ((xmin <= p.X && p.X <= xmax) && (ymin <= p.Y && p.Y <= ymax))
+				res = true;
+			else
+				res = false;
+		}
+
+		// Ham xu ly viec select 1 doi tuong
+		// Ket qua: Tra ve MyBitMap cua 1 doi tuong do
+		private void selectOneObject(out MyBitMap obj) {
+			obj = new MyBitMap(); // Khoi tao truoc doi tuong
+			double dmin = -1;
+			int imin = -1; // Ban dau mac dinh chi so la -1
+			int h = openGLControl.OpenGL.RenderContextProvider.Height; // Lay chieu cao cua cua so
+			for (int i = 0; i < bm.Count; i++) {
+				bool flag;
+				Point p1, p2;
+				p1 = bm[i].controlPoints[0];
+				p2 = bm[i].controlPoints[1];
+				int xmin, xmax;
+				int ymin, ymax;
+				if (p1.X < p2.X)
+				{
+					xmin = p1.X;
+					xmax = p2.X;
+				}
+				else {
+					xmin = p2.X;
+					xmax = p1.X;
+				}
+
+				if (p1.Y < p2.Y)
+				{
+					ymin = p1.Y;
+					ymax = p2.Y;
+				}
+				else {
+					ymin = p2.Y;
+					ymax = p1.Y;
+				}
+
+				isInside(menuStart, xmin, xmax, ymin, ymax, out flag);
+				if (flag) {
+					double d;
+					// Tinh khoang cach tu diem trung diem pStart, pEnd cua shape nay den menuStart
+					Point midpoint = new Point(Round((xmin + xmax) / 2.0), Round((ymin + ymax) / 2.0));
+					calculateDistance(menuStart, midpoint, out d);
+					if (dmin == -1 || d < dmin) {
+						dmin = d;
+						imin = i;
+					}
+				}
+
+			}
+
+			if (imin != -1)
+			{
+				obj = new MyBitMap(bm[imin]);
 			}
 		}
 
@@ -1496,6 +1575,15 @@ namespace SharpGL
 				else if (chooseItem == SharpGL.Menu.SCALE) // Scale/Zoom
 				{
 
+				}
+				else if(chooseItem == SharpGL.Menu.SELECT){ // Select
+					MyBitMap obj;
+					selectOneObject(out obj);
+					// Kiem tra xem co null hay khong?
+					bool isNull = false;
+					obj.isNull(out isNull);
+					if(!isNull)
+						drawControlPoints(obj.controlPoints[0], obj.controlPoints[1], obj.type); // Ve cac control point cua hinh do
 				}
 
 				// Ve voi cho nay
@@ -1841,6 +1929,11 @@ namespace SharpGL
 			}
 		}
 
+		private void bt_Select_Click(object sender, EventArgs e)
+		{
+			chooseItem = SharpGL.Menu.SELECT;
+		}
+
 		private void chkLstBox_Options_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			switch (chkLstBox_Options.SelectedIndex)
@@ -1872,7 +1965,7 @@ namespace SharpGL
 		// Cap nhat diem dau khi nguoi dung bat dau giu chuot
 		private void ctrl_OpenGLControl_MouseDown(object sender, MouseEventArgs e)
 		{
-			if (chooseItem == SharpGL.Menu.DRAWING)
+			if (chooseItem == SharpGL.Menu.DRAWING) // NEu che do la DRAWING
 			{
 				if (shShape != ShapeMode.POLYGON)
 				{
@@ -1909,11 +2002,12 @@ namespace SharpGL
 
 
 			}
-			else
+			else // Neu nguoi dung chon che do bien doi affine
 			{
 				// Cap nhat toa do cho viec thuc hien cac phep transform
 				menuStart = menuEnd = new Point(e.X, e.Y);
 			}
+
 			// In toa do khi click chuot 
 			lb_Coor.Text = e.X.ToString() + ", " + e.Y.ToString();
 			openGLControl.Cursor = Cursors.Cross; // Thay doi hinh dang con tro chuot khi ve

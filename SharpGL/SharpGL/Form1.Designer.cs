@@ -67,6 +67,9 @@
 			this.pnl_Under = new System.Windows.Forms.Panel();
 			this.ptBox_Cursor = new System.Windows.Forms.PictureBox();
 			this.lb_Coor = new System.Windows.Forms.Label();
+			this.bt_Select = new System.Windows.Forms.Button();
+			this.lb_Select = new System.Windows.Forms.Label();
+			this.lb_Check_List_Option = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.openGLControl)).BeginInit();
 			this.pnl_Tool_Bar.SuspendLayout();
 			this.menuStrip2.SuspendLayout();
@@ -81,7 +84,7 @@
 			this.openGLControl.DrawFPS = false;
 			this.openGLControl.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.openGLControl.Location = new System.Drawing.Point(-1, 141);
-			this.openGLControl.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.openGLControl.Margin = new System.Windows.Forms.Padding(4);
 			this.openGLControl.Name = "openGLControl";
 			this.openGLControl.OpenGLVersion = SharpGL.Version.OpenGLVersion.OpenGL2_1;
 			this.openGLControl.RenderContextType = SharpGL.RenderContextType.DIBSection;
@@ -113,7 +116,7 @@
 			// bt_Palette
 			// 
 			this.bt_Palette.Image = ((System.Drawing.Image)(resources.GetObject("bt_Palette.Image")));
-			this.bt_Palette.Location = new System.Drawing.Point(702, 14);
+			this.bt_Palette.Location = new System.Drawing.Point(857, 12);
 			this.bt_Palette.Name = "bt_Palette";
 			this.bt_Palette.Size = new System.Drawing.Size(70, 70);
 			this.bt_Palette.TabIndex = 3;
@@ -142,6 +145,9 @@
 			// pnl_Tool_Bar
 			// 
 			this.pnl_Tool_Bar.BackColor = System.Drawing.Color.LightGray;
+			this.pnl_Tool_Bar.Controls.Add(this.lb_Check_List_Option);
+			this.pnl_Tool_Bar.Controls.Add(this.lb_Select);
+			this.pnl_Tool_Bar.Controls.Add(this.bt_Select);
 			this.pnl_Tool_Bar.Controls.Add(this.chkLstBox_Options);
 			this.pnl_Tool_Bar.Controls.Add(this.bt_Polygon);
 			this.pnl_Tool_Bar.Controls.Add(this.lb_Flood_Fill);
@@ -176,8 +182,8 @@
             "Translate",
             "Rotate",
             "Scale"});
-			this.chkLstBox_Options.Location = new System.Drawing.Point(407, 41);
-			this.chkLstBox_Options.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.chkLstBox_Options.Location = new System.Drawing.Point(548, 43);
+			this.chkLstBox_Options.Margin = new System.Windows.Forms.Padding(2);
 			this.chkLstBox_Options.Name = "chkLstBox_Options";
 			this.chkLstBox_Options.Size = new System.Drawing.Size(121, 64);
 			this.chkLstBox_Options.TabIndex = 24;
@@ -215,7 +221,7 @@
 			// lb_Color2
 			// 
 			this.lb_Color2.AutoSize = true;
-			this.lb_Color2.Location = new System.Drawing.Point(642, 71);
+			this.lb_Color2.Location = new System.Drawing.Point(797, 69);
 			this.lb_Color2.Name = "lb_Color2";
 			this.lb_Color2.Size = new System.Drawing.Size(40, 13);
 			this.lb_Color2.TabIndex = 20;
@@ -224,7 +230,7 @@
 			// lb_Color1
 			// 
 			this.lb_Color1.AutoSize = true;
-			this.lb_Color1.Location = new System.Drawing.Point(573, 71);
+			this.lb_Color1.Location = new System.Drawing.Point(728, 69);
 			this.lb_Color1.Name = "lb_Color1";
 			this.lb_Color1.Size = new System.Drawing.Size(40, 13);
 			this.lb_Color1.TabIndex = 19;
@@ -233,7 +239,7 @@
 			// bt_Right_Color
 			// 
 			this.bt_Right_Color.BackColor = System.Drawing.Color.Black;
-			this.bt_Right_Color.Location = new System.Drawing.Point(642, 19);
+			this.bt_Right_Color.Location = new System.Drawing.Point(797, 17);
 			this.bt_Right_Color.Name = "bt_Right_Color";
 			this.bt_Right_Color.Size = new System.Drawing.Size(40, 40);
 			this.bt_Right_Color.TabIndex = 18;
@@ -243,7 +249,7 @@
 			// bt_Left_Color
 			// 
 			this.bt_Left_Color.BackColor = System.Drawing.Color.White;
-			this.bt_Left_Color.Location = new System.Drawing.Point(567, 14);
+			this.bt_Left_Color.Location = new System.Drawing.Point(722, 12);
 			this.bt_Left_Color.Name = "bt_Left_Color";
 			this.bt_Left_Color.Size = new System.Drawing.Size(50, 50);
 			this.bt_Left_Color.TabIndex = 17;
@@ -254,7 +260,7 @@
 			// 
 			this.lb_Size.AutoSize = true;
 			this.lb_Size.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lb_Size.Location = new System.Drawing.Point(366, 17);
+			this.lb_Size.Location = new System.Drawing.Point(486, 17);
 			this.lb_Size.Name = "lb_Size";
 			this.lb_Size.Size = new System.Drawing.Size(35, 17);
 			this.lb_Size.TabIndex = 16;
@@ -295,7 +301,7 @@
             "8",
             "9",
             "10"});
-			this.cBox_Choose_Size.Location = new System.Drawing.Point(407, 16);
+			this.cBox_Choose_Size.Location = new System.Drawing.Point(548, 17);
 			this.cBox_Choose_Size.Name = "cBox_Choose_Size";
 			this.cBox_Choose_Size.Size = new System.Drawing.Size(121, 21);
 			this.cBox_Choose_Size.TabIndex = 13;
@@ -419,19 +425,19 @@
 			// undoToolStripMenuItem
 			// 
 			this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
-			this.undoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.undoToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
 			this.undoToolStripMenuItem.Text = "&Undo";
 			// 
 			// redoToolStripMenuItem
 			// 
 			this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
-			this.redoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.redoToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
 			this.redoToolStripMenuItem.Text = "&Redo";
 			// 
 			// resizeToolStripMenuItem
 			// 
 			this.resizeToolStripMenuItem.Name = "resizeToolStripMenuItem";
-			this.resizeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.resizeToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
 			this.resizeToolStripMenuItem.Text = "R&esize";
 			// 
 			// pnl_Under
@@ -462,6 +468,37 @@
 			this.lb_Coor.Size = new System.Drawing.Size(24, 15);
 			this.lb_Coor.TabIndex = 0;
 			this.lb_Coor.Text = "0,0";
+			// 
+			// bt_Select
+			// 
+			this.bt_Select.Image = ((System.Drawing.Image)(resources.GetObject("bt_Select.Image")));
+			this.bt_Select.Location = new System.Drawing.Point(415, 12);
+			this.bt_Select.Name = "bt_Select";
+			this.bt_Select.Size = new System.Drawing.Size(50, 50);
+			this.bt_Select.TabIndex = 25;
+			this.bt_Select.TextImageRelation = System.Windows.Forms.TextImageRelation.TextAboveImage;
+			this.bt_Select.UseVisualStyleBackColor = true;
+			this.bt_Select.Click += new System.EventHandler(this.bt_Select_Click);
+			// 
+			// lb_Select
+			// 
+			this.lb_Select.AutoSize = true;
+			this.lb_Select.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.lb_Select.Location = new System.Drawing.Point(420, 66);
+			this.lb_Select.Name = "lb_Select";
+			this.lb_Select.Size = new System.Drawing.Size(41, 15);
+			this.lb_Select.TabIndex = 26;
+			this.lb_Select.Text = "Select";
+			// 
+			// lb_Check_List_Option
+			// 
+			this.lb_Check_List_Option.AutoSize = true;
+			this.lb_Check_List_Option.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.lb_Check_List_Option.Location = new System.Drawing.Point(486, 43);
+			this.lb_Check_List_Option.Name = "lb_Check_List_Option";
+			this.lb_Check_List_Option.Size = new System.Drawing.Size(57, 17);
+			this.lb_Check_List_Option.TabIndex = 27;
+			this.lb_Check_List_Option.Text = "Options";
 			// 
 			// Form_Paint
 			// 
@@ -528,6 +565,9 @@
 		private System.Windows.Forms.PictureBox ptBox_Cursor;
 		private System.Windows.Forms.Button bt_Polygon;
         private System.Windows.Forms.CheckedListBox chkLstBox_Options;
-    }
+		private System.Windows.Forms.Label lb_Check_List_Option;
+		private System.Windows.Forms.Label lb_Select;
+		private System.Windows.Forms.Button bt_Select;
+	}
 }
 
