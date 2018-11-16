@@ -1672,7 +1672,8 @@ namespace SharpGL
 				repaint(gl);
 
 				if (chooseItem == SharpGL.Menu.SELECT)
-				{ // Select
+				{
+					// Select
 					MyBitMap obj;
 					int index;
 					selectOneObject(out obj, out index);
@@ -1685,19 +1686,14 @@ namespace SharpGL
 						if (isChangedSize || isChangedColor)
 						{
 							bm.RemoveAt(index); // Xoa khoi list
-							if (isChangedColor && isChangedSize) // Neu thay doi mau va size
-							{ // Neu nguoi dung thay doi mau ve
-							  // Cap nhat lai mau ve vao MyBitMap
-								bm.Add(new MyBitMap(obj.controlPoints, colorUserColor, obj.type, currentSize));
-								isChangedColor = false;
-								isChangedSize = false;
-							}
-							else if (isChangedSize)
+
+							if (isChangedSize)
 							{   // Cap nhat size
 								bm.Add(new MyBitMap(obj.controlPoints, obj.colorUse, obj.type, currentSize));
 								isChangedSize = false;
 							}
-							else if (isChangedColor) {
+							else if (isChangedColor)
+							{ // cap nhat mau ve
 								bm.Add(new MyBitMap(obj.controlPoints, colorUserColor, obj.type, obj.brushSize));
 								isChangedColor = false;
 							}
@@ -1713,7 +1709,8 @@ namespace SharpGL
 
 				// Stopwatch ho tro do thoi gian
 				Stopwatch myTimer = new Stopwatch();
-				myTimer.Start(); // bat dau do
+				if(chooseItem == SharpGL.Menu.DRAWING)
+					myTimer.Start(); // bat dau do
 
 				//===================================================================//
 				//===================================================================//
@@ -1782,9 +1779,12 @@ namespace SharpGL
 						break;
 				}
 
-				myTimer.Stop(); // ket thuc do
-				TimeSpan Time = myTimer.Elapsed; // Lay thoi gian troi qua
-				tb_Time.Text = String.Format("{0} (sec)", Time.TotalSeconds); // In ra tb_Time
+				if (chooseItem == SharpGL.Menu.DRAWING)
+				{
+					myTimer.Stop(); // ket thuc do
+					TimeSpan Time = myTimer.Elapsed; // Lay thoi gian troi qua
+					tb_Time.Text = String.Format("{0} (sec)", Time.TotalSeconds); // In ra tb_Time
+				}
 
 				// Kiem tra xem co push matrix vao stack khong?
 				if (isPushMatrix == true)
@@ -1907,10 +1907,11 @@ namespace SharpGL
 		// Ham to mau floodFill x Scanline (Stack)
 		private void floodFillScanLineStack(OpenGL gl, int x, int y, Color fill_color, Color old_color)
 		{
-			if (fill_color == old_color) return;
+			if (fill_color == old_color) return; // Tranh lap vo tan
 
 			int x1;
-			bool spanAbove, spanBelow;
+			bool spanAbove, spanBelow; // kiem tra xem co test spanAbove va spanBelow chua
+			// Neu no la 1 phan cua new scanline hoac no da duoc push vao stack
 
 			Stack<Point> s = new Stack<Point>();
 			s.Push(new Point(x, y));
@@ -1926,31 +1927,41 @@ namespace SharpGL
 				getPixelColor(gl, x1, y, out pixel);
 				Color color = new Color();
 				color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
-				while (x1 >= 0 && color.Equals(old_color))
+				// Day x1 sang ben trai de quet tu trai sang
+				while (x1 >= 0 && (color.A == old_color.A && 
+					color.R == old_color.R && color.G == old_color.G && color.B == old_color.B)) 
 				{
 					x1--;
 					getPixelColor(gl, x1, y, out pixel);
 					color = new Color();
 					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
 				}
-				x1++;
-
+				x1++; 
+				
+				// Danh dau la chua check spanAbove va spanBelow
 				spanAbove = spanBelow = false;
 
+				// LAy pixel
 				getPixelColor(gl, x1, y, out pixel);
 				color = new Color();
 				color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
-				while (x1 < gl.RenderContextProvider.Width && color.Equals(old_color))
+				// Thuc hien to mau scanline hien tai va dong thoi kiem tra cho scanline o tren va o duoi 
+				//bang cach gieo hat giong cho lan to tiep theo vao stack
+				while (x1 < gl.RenderContextProvider.Width && (color.A == old_color.A &&
+					color.R == old_color.R && color.G == old_color.G && color.B == old_color.B))
 				{
+					// Put pixel x1, y cho scanline hien tai
 					setPixelColor(gl, x1, y, fill_color);
 
 					getPixelColor(gl, x1, y - 1, out pixel);
 					color = new Color();
 					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
-					if (!spanAbove && gl.RenderContextProvider.Height - y > 0 && color.Equals(old_color))
+					// Kiem tra scanline above va gieo hat giong
+					if (!spanAbove && gl.RenderContextProvider.Height - y > 0 && (color.A == old_color.A &&
+					color.R == old_color.R && color.G == old_color.G && color.B == old_color.B))
 					{
 						s.Push(new Point(x1, y - 1));
-						spanAbove = true;
+						spanAbove = true; // Danh dau la da push no vao stack
 					}
 					else if (spanAbove && gl.RenderContextProvider.Height - y > 0 && !color.Equals(old_color))
 					{
@@ -2055,7 +2066,16 @@ namespace SharpGL
 					{
 						tmp.controlPoints.Add(pStart);
 						tmp.controlPoints.Add(pEnd);
-						// Khi nguoi dung vua ve xong hinh thi ve control points
+
+						//// De select 1 doi tuong khi moi ve xong
+						//menuStart = new Point(pStart.X, pStart.Y);
+						//chooseItem = SharpGL.Menu.SELECT;
+
+						//// Unchecked các menu còn lại
+						//for (int i = 0; i < 4; i++)
+						//{
+						//	chkLstBox_Options.SetItemChecked(i, false);
+						//}
 						drawControlPoints(tmp.controlPoints, shShape);
 					}
 
@@ -2107,6 +2127,8 @@ namespace SharpGL
 			{
 				chkLstBox_Options.SetItemChecked(i, false);
 			}
+			// Reset lai
+			menuStart = new Point(-1, -1);
 		}
 
 		private void chkLstBox_Options_SelectedIndexChanged(object sender, EventArgs e)
