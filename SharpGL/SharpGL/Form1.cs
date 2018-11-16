@@ -7,7 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+<<<<<<< HEAD
 using System.Diagnostics; 
+=======
+using System.Diagnostics;
+using System.Runtime.InteropServices; // Su dung ham chuyen doi sang IntPtr
+>>>>>>> 71a476bc8657ad649422e309d7775ee14140f737
 
 namespace SharpGL
 {
@@ -1138,7 +1143,7 @@ namespace SharpGL
 					case ShapeMode.FLOOD_FILL:
 						p1 = new Point(bm[i].controlPoints[0].X, bm[i].controlPoints[0].Y);
 						// To mau bang thuat toan flood fill
-						floodFill(p1.X, p1.Y);
+						floodFill(gl, p1.X, p1.Y, colorUserColor, bm[i].colorUse);
 						break;
 				}
 			}
@@ -1435,7 +1440,7 @@ namespace SharpGL
 			// get the OpenGL object
 			OpenGL gl = openGLControl.OpenGL;
 			// Chon mau de ve control points. Chon mau Light grey
-			gl.Color(Color.DarkOrange.R / 255.0, Color.DarkOrange.G / 255.0, Color.DarkOrange.B / 255.0, 0);
+			gl.Color(Color.Gold.R / 255.0, Color.Gold.G / 255.0, Color.Gold.B / 255.0, 0);
 			gl.LineWidth(1); // Size cua net ve
 
 			// Tim cac control points cua doi tuong nay
@@ -1446,9 +1451,14 @@ namespace SharpGL
 
 			foreach (var p in controlPoints)
 			{
-				p3 = new Point(p.X + 3, p.Y + 3);
-				p4 = new Point(p.X - 3, p.Y - 3);
-				drawFillRec(gl, p3, p4);
+				//p3 = new Point(p.X + 3, p.Y + 3);
+				//p4 = new Point(p.X - 3, p.Y - 3);
+				//drawFillRec(gl, p3, p4);
+				gl.PointSize(6);
+				gl.Begin(OpenGL.GL_POINTS);
+				gl.Vertex(p.X, gl.RenderContextProvider.Height - p.Y);
+				gl.End();
+				gl.Flush();
 			}
 		}
 
@@ -1494,6 +1504,7 @@ namespace SharpGL
 
 				}
 
+<<<<<<< HEAD
                 // Ve voi cho nay
                 // ...
                 if (chooseItem == SharpGL.Menu.DRAWING)
@@ -1538,6 +1549,50 @@ namespace SharpGL
                             break;
                     }
                 }
+=======
+				// Ve voi cho nay
+				// ...
+				switch (shShape)
+				{
+					case ShapeMode.LINE:
+						// Ve doan thang
+						drawLine(gl);
+						break;
+					case ShapeMode.CIRCLE:
+						// Ve duong tron
+						drawCircle(gl);
+						break;
+					case ShapeMode.RECTANGLE:
+						// Ve hinh chu nhat
+						drawRec(gl);
+						break;
+					case ShapeMode.ELLIPSE:
+						// Ve ellipse
+						drawEllipse(gl);
+						break;
+					case ShapeMode.TRIANGLE:
+						// Ve tam giac deu
+						drawTriangle(gl);
+						break;
+					case ShapeMode.PENTAGON:
+						// Ve ngu giac deu
+						drawPentagon(gl);
+						break;
+					case ShapeMode.HEXAGON:
+						// Ve luc giac deu
+						drawHexagon(gl);
+						break;
+					case ShapeMode.POLYGON:
+						// Ve da giac
+						drawPolygon(gl);
+						break;
+					case ShapeMode.FLOOD_FILL:
+						// To mau bang thuat toan flood fill
+						//floodFill(gl, pStart.X, pStart.Y, colorUserColor, Color.Black);
+						floodFillScanLineStack(gl, pStart.X, pStart.Y, colorUserColor, Color.Black);
+						break;
+				}
+>>>>>>> 71a476bc8657ad649422e309d7775ee14140f737
 
 				myTimer.Stop(); // ket thuc do
 				TimeSpan Time = myTimer.Elapsed; // Lay thoi gian troi qua
@@ -1570,40 +1625,159 @@ namespace SharpGL
 		}
 
 		// Ham getPixelColor
-		private void getPixelColor(Point p, out Byte[] color)
+		private void getPixelColor(OpenGL gl, int x, int y, out Byte[] color)
 		{
-			OpenGL gl = openGLControl.OpenGL;
-			color = new Byte[3];
-
-			gl.ReadPixels(p.X, p.Y, 1, 1, OpenGL.GL_RGB, OpenGL.GL_FLOAT, color);
+			color = new Byte[4 * 1 * 1]; // Components * width * height (RGBA)
+			gl.ReadPixels(x, gl.RenderContextProvider.Height - y, 1, 1, OpenGL.GL_RGBA, OpenGL.GL_UNSIGNED_BYTE, color);
 		}
 
 		// Ham set pixel color
-		private void setPixelColor(Point p)
+		private void setPixelColor(OpenGL gl, int x, int y, Color fill_color)
 		{
-			OpenGL gl = openGLControl.OpenGL;
-			// set mau
-			gl.Color(colorUserColor.R / 255.0, colorUserColor.G / 255.0, colorUserColor.B / 255.0, 0);
+
+			//Byte[] color = new Byte[4] { fill_color.R, fill_color.G, fill_color.B, fill_color.A };
+			//int size = color.Length * Marshal.SizeOf(color[0]); // Tinh kich thuoc cua mang byte
+			//IntPtr pnt = Marshal.AllocHGlobal(size); // Khoi tao vung nho cho pnt
+
+			//// Copy color vao pnt
+			//Marshal.Copy(color, 0, pnt, color.Length);
+			//// Vi tri de raster 
+			//gl.RasterPos(x, gl.RenderContextProvider.Height - y);
+			//// set mau
+			//gl.DrawPixels(2, 2, OpenGL.GL_RGBA, OpenGL.GL_BYTE, pnt);
+
+			//// Free the unmanaged memory.
+			//Marshal.FreeHGlobal(pnt);
+
+			gl.Color(fill_color.R / 255.0, fill_color.G / 255.0, fill_color.B / 255.0, fill_color.A);
+			gl.PointSize(2);
 			gl.Begin(OpenGL.GL_POINTS);
-			gl.Vertex(p.X, p.Y);
+			gl.Vertex(x, gl.RenderContextProvider.Height - y);
 			gl.End();
 			gl.Flush();
+
+
 		}
 
-		private void floodFill(int x, int y)
+		// Ham to mau theo vet loang
+		private void floodFill(OpenGL gl, int x, int y, Color fill_color, Color old_color)
 		{
-			Byte[] color;
-			getPixelColor(pStart, out color);
+			#region Recursive Flood fill
+			//Byte[] current_color;
+			//getPixelColor(gl, x, y, out current_color);
 
-			// Thuat toan to mau theo vet loang
-			// Neu color cua pixel khac bien va chua to mau
-			if (color[0] != 0 && color[1] != 0 && color[2] != 0)
-			{
-				setPixelColor(pStart);
-				floodFill(x + 1, y);
-				floodFill(x - 1, y);
-				floodFill(x, y + 1);
-				floodFill(x, y - 1);
+			//// Thuat toan to mau theo vet loang
+			//// Neu color cua pixel hiện tai chưa tô và khác màu của biên
+			////if ((current_color[0] != fill_color.R && current_color[1] != fill_color.G && current_color[2] != fill_color.B 
+			////	&& current_color[3] != fill_color.A) &&
+			////	(current_color[0] != old_color.R && current_color[1] != old_color.G && current_color[2] != old_color.B 
+			////	&& current_color[3] != old_color.A))
+			//if (current_color[0] == old_color.R && current_color[1] == old_color.G && current_color[2] == old_color.B
+			//	&& current_color[3] == old_color.A)
+			//{
+			//	setPixelColor(gl, x, y, fill_color);
+			//	floodFill(gl, x + 1, y, fill_color, old_color);
+			//	floodFill(gl, x - 1, y, fill_color, old_color);
+			//	floodFill(gl, x, y + 1, fill_color, old_color);
+			//	floodFill(gl, x, y - 1, fill_color, old_color);
+
+			//}
+			#endregion
+			#region Flood fill stack
+			if (fill_color == old_color) return; // Tranh lap vo han
+
+			int[] dx = new int[] { 0, 1, 0, -1 }; // Cac nhanh lan can 4 cua x
+			int[] dy = new int[] { -1, 0, 1, 0}; // Cac nhanh lan can 4 cua y
+
+			Stack<Point> s = new Stack<Point>(); // Khoi tao stack
+			s.Push(new Point(x, y)); // Push diem dau vao Stack
+
+			while (s.Count != 0) { // Khi stack khac rong
+				Point p = s.Pop(); // Pop ra khoi stack
+				setPixelColor(gl, p.X, p.Y, fill_color); //To mau
+				for (int i = 0; i < 4; i++) {
+					int nx = p.X + dx[i];
+					int ny = p.Y + dy[i];
+					// Lay pixel cua nx, ny
+					Byte[] neighbor_color;
+					getPixelColor(gl, nx, ny, out neighbor_color);
+					// Neu nhu nx, ny chua to thi push vao stack
+					if (neighbor_color[0] == old_color.R && neighbor_color[1] == old_color.G && neighbor_color[2] == old_color.B
+						&& neighbor_color[3] == old_color.A) {
+						s.Push(new Point(nx, ny));
+					}
+				}
+
+			}
+			#endregion
+
+		}
+
+		// Ham to mau floodFill x Scanline (Stack)
+		private void floodFillScanLineStack(OpenGL gl, int x, int y, Color fill_color, Color old_color) {
+			if (fill_color == old_color) return;
+
+			int x1;
+			bool spanAbove, spanBelow;
+
+			Stack<Point> s = new Stack<Point>();
+			s.Push(new Point(x, y));
+
+			while (s.Count != 0) { // Neu stack khac rong
+				Point p = s.Pop();
+				x = p.X;	y = p.Y; // Cap nhat lai x, y
+
+				x1 = x;
+				// Lay pixel cua x1, y
+				Byte[] pixel;
+				getPixelColor(gl, x1, y, out pixel);
+				Color color = new Color();
+				color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
+				while (x1 >= 0 && color.Equals(old_color)) {
+					x1--;
+					getPixelColor(gl, x1, y, out pixel);
+					color = new Color();
+					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
+				}
+				x1++;
+
+				spanAbove = spanBelow = false;
+
+				getPixelColor(gl, x1, y, out pixel);
+				color = new Color();
+				color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
+				while (x1 < gl.RenderContextProvider.Width && color.Equals(old_color)) {
+					setPixelColor(gl, x1, y, fill_color);
+
+					getPixelColor(gl, x1, y - 1, out pixel);
+					color = new Color();
+					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
+					if (!spanAbove && gl.RenderContextProvider.Height - y > 0 && color.Equals(old_color))
+					{
+						s.Push(new Point(x1, y - 1));
+						spanAbove = true;
+					}
+					else if (spanAbove && gl.RenderContextProvider.Height - y > 0 && !color.Equals(old_color)) {
+						spanAbove = false;
+					}
+
+					getPixelColor(gl, x1, y + 1, out pixel);
+					color = new Color();
+					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
+					if (!spanBelow && gl.RenderContextProvider.Height - y < gl.RenderContextProvider.Height - 1 && color.Equals(old_color))
+					{
+						s.Push(new Point(x1, y + 1));
+						spanBelow = true;
+					}
+					else if (spanAbove && gl.RenderContextProvider.Height - y < gl.RenderContextProvider.Height - 1 && !color.Equals(old_color))
+					{
+						spanBelow = false;
+					}
+					x1++;
+					getPixelColor(gl, x1, y, out pixel);
+					color = new Color();
+					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
+				}
 			}
 		}
 
