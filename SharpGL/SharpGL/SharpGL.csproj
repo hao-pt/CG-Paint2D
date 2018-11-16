@@ -33,14 +33,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SharpGL">
-      <HintPath>C:\Users\Tien Hao\Documents\SharpGL.WinForms\SharpGL.dll</HintPath>
+    <Reference Include="SharpGL, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\SharpGL.WinForms\SharpGL.dll</HintPath>
     </Reference>
     <Reference Include="SharpGL.SceneGraph">
-      <HintPath>C:\Users\Tien Hao\Documents\SharpGL.WinForms\SharpGL.SceneGraph.dll</HintPath>
+      <HintPath>C:\SharpGL.WinForms\SharpGL.SceneGraph.dll</HintPath>
     </Reference>
     <Reference Include="SharpGL.WinForms">
-      <HintPath>C:\Users\Tien Hao\Documents\SharpGL.WinForms\SharpGL.WinForms.dll</HintPath>
+      <HintPath>C:\SharpGL.WinForms\SharpGL.WinForms.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
