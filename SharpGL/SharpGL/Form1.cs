@@ -103,6 +103,10 @@ namespace SharpGL
 
 	public partial class Form_Paint : Form
 	{
+		// Bien chi vi tri object duoc chon
+		int indexObject = -1;
+		// Bien kiem tra da chon object chua
+		bool selected = false;
 		// Tọa độ điểm di chuyển sau khi chọn menu de thuc hien phep translate, rotate & scale
 		Point menuStart, menuEnd;
 
@@ -1146,6 +1150,50 @@ namespace SharpGL
 			isPushMatrix = true;
 		}
 
+		// Ham scale
+		private void scale(OpenGL gl)
+		{
+			gl.PushMatrix();
+			Point mid = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
+			// Tinh xScale,yScale
+			double dis1;
+			double dis2;
+			calculateDistance(menuStart, mid, out dis1);
+			calculateDistance(menuEnd, mid, out dis2);
+			// Ti le scale
+			int scaleNumber = (int)(dis2 / dis1);
+			gl.Scale(scaleNumber, 0, 0);
+			isPushMatrix = true;
+		}
+
+		// Ham rotate
+		private void rotate(OpenGL gl)
+		{
+			Point CenterRotate = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
+			double rotateAngle = 0;
+			int height = gl.RenderContextProvider.Height;
+			// Tọa độ 2 vector
+			int[] vector1 = { 0, 1 };
+			int[] vector2 = { menuEnd.X - CenterRotate.X, -menuEnd.Y + CenterRotate.Y };
+			// Độ dài của 2 vector
+			double length_vector1 = Math.Sqrt(Math.Pow(vector1[0], 2) + Math.Pow(vector1[1], 2));
+			double length_vector2 = Math.Sqrt(Math.Pow(vector2[0], 2) + Math.Pow(vector2[1], 2));
+			// Xác định tử và mẫu
+			int Tu = vector1[0] * vector2[0] + vector1[1] * vector2[1];
+			double Mau = length_vector1 * length_vector2;
+			rotateAngle = Math.Acos(Tu / Mau) * 180 / Math.PI;
+			if (menuEnd.X > CenterRotate.X)
+				rotateAngle = -rotateAngle;
+
+			gl.PushMatrix();
+			gl.Translate(CenterRotate.X, gl.RenderContextProvider.Height - CenterRotate.Y, 0f);
+			gl.Rotate(rotateAngle, 0, 0, 1);
+			//gl.Rotate((float)30, 0, 0, 1);
+			gl.Translate(-CenterRotate.X, CenterRotate.Y - gl.RenderContextProvider.Height, 0f);
+			isPushMatrix = true;
+		}
+
+
 		private void repaint(OpenGL gl)
 		{
 			for (int i = 0; i < bm.Count; i++)
@@ -1901,15 +1949,77 @@ namespace SharpGL
 				// Do đó cần push ma trận model view vào stack
 				if (chooseItem == SharpGL.Menu.TRANSLATE) // Dich chuyen
 				{
+					if (selected == false)
+					{
+						MyBitMap obj;
+
+						selectOneObject(menuStart, out obj, out indexObject);
+						// Kiem tra xem co null hay khong?
+						bool isNull = false;
+						obj.isNull(out isNull);
+						if (!isNull)
+						{
+							drawControlPoints(obj.controlPoints, obj.type);
+							bm.RemoveAt(indexObject); // Xoa khoi list
+							bm.Add(new MyBitMap(obj.controlPoints, obj.colorUse, obj.type, obj.brushSize));
+							shShape = obj.type;
+							colorUserColor = obj.colorUse;
+							currentSize = obj.brushSize;
+							pStart = obj.controlPoints[0];
+							pEnd = obj.controlPoints[1];
+							bm.RemoveAt(indexObject);
+							selected = true;
+						}
+					}
 					translate(gl);
+
 				}
 				else if (chooseItem == SharpGL.Menu.ROTATE) // Xoay
 				{
-
+					if (selected == false)
+					{
+						MyBitMap obj;
+						selectOneObject(menuStart, out obj, out indexObject);
+						// Kiem tra xem co null hay khong?
+						bool isNull = false;
+						obj.isNull(out isNull);
+						if (!isNull)
+						{
+							drawControlPoints(obj.controlPoints, obj.type);
+							shShape = obj.type;
+							colorUserColor = obj.colorUse;
+							currentSize = obj.brushSize;
+							pStart = obj.controlPoints[0];
+							pEnd = obj.controlPoints[1];
+							bm.RemoveAt(indexObject);
+							selected = true;
+						}
+					}
+					rotate(gl);
 				}
 				else if (chooseItem == SharpGL.Menu.SCALE) // Scale/Zoom
 				{
+					if (selected == false)
 
+					{
+						MyBitMap obj;
+						selectOneObject(menuStart, out obj, out indexObject);
+						// Kiem tra xem co null hay khong?
+						bool isNull = false;
+						obj.isNull(out isNull);
+						if (!isNull)
+						{
+							drawControlPoints(obj.controlPoints, obj.type);
+							shShape = obj.type;
+							colorUserColor = obj.colorUse;
+							currentSize = obj.brushSize;
+							pStart = obj.controlPoints[0];
+							pEnd = obj.controlPoints[1];
+							bm.RemoveAt(indexObject);
+							selected = true;
+						}
+					}
+					scale(gl);
 				}
 
 				// Ve voi cho nay
@@ -2316,7 +2426,103 @@ namespace SharpGL
 					// Cập nhật lại điểm menuEnd
 					menuEnd = new Point(e.X, e.Y);
 					isDown = 0;
+					// Co the select lai 1 object khac
+					selected = false;
 				}
+				if (chooseItem == SharpGL.Menu.TRANSLATE)
+				{
+					// Tinh khoang doi trx va try
+					int xTrans = menuEnd.X - menuStart.X;
+					int yTrans = menuEnd.Y - menuStart.Y;
+					pStart = new Point(pStart.X + xTrans, pStart.Y + yTrans);
+					pEnd = new Point(pEnd.X + xTrans, pEnd.Y + yTrans);
+					// Tao lst
+					List<Point> lst = new List<Point>();
+					lst.Add(pStart);
+					lst.Add(pEnd);
+					// Khi nguoi dung vua ve xong hinh thi ve control points
+					drawControlPoints(lst, shShape);
+					// Thuc hien lui doi tuong da ve vao List<MyBitMap> bm
+					MyBitMap tmp = new MyBitMap(colorUserColor, shShape, currentSize);
+					tmp.controlPoints.Add(pStart);
+					tmp.controlPoints.Add(pEnd);
+					// Them tmp vao bm
+					bm.Add(tmp);
+				}
+				else if (chooseItem == SharpGL.Menu.SCALE)
+				{
+					Point mid = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
+					// Tinh xScale,yScale
+					double dis1;
+					double dis2;
+					calculateDistance(menuStart, mid, out dis1);
+					calculateDistance(menuEnd, mid, out dis2);
+					// Ti le scale
+					int scaleNumber = (int)(dis2 / dis1);
+					//pStart = new Point(pStart.X * scaleNumber, pStart.Y * scaleNumber);
+					//pEnd = new Point(pEnd.X * scaleNumber, pEnd.Y * scaleNumber);
+					pStart = new Point(pStart.X, pStart.Y);
+					pEnd = new Point(pEnd.X * scaleNumber, pEnd.Y);
+					// Tao lst
+					List<Point> lst = new List<Point>();
+					lst.Add(pStart);
+					lst.Add(pEnd);
+					// Khi nguoi dung vua ve xong hinh thi ve control points
+					drawControlPoints(lst, shShape);
+					// Thuc hien lui doi tuong da ve vao List<MyBitMap> bm
+					MyBitMap tmp = new MyBitMap(colorUserColor, shShape, currentSize);
+					tmp.controlPoints.Add(pStart);
+					tmp.controlPoints.Add(pEnd);
+					// Them tmp vao bm
+					bm.Add(tmp);
+				}
+				else if (chooseItem == SharpGL.Menu.ROTATE)
+				{
+					Point CenterRotate = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
+					double rotateAngle = 0;
+
+					// Tọa độ 2 vector
+					int[] vector1 = { 0, 1 };
+					int[] vector2 = { menuEnd.X - CenterRotate.X, -menuEnd.Y + CenterRotate.Y };
+					// Độ dài của 2 vector
+					double length_vector1 = Math.Sqrt(Math.Pow(vector1[0], 2) + Math.Pow(vector1[1], 2));
+					double length_vector2 = Math.Sqrt(Math.Pow(vector2[0], 2) + Math.Pow(vector2[1], 2));
+					// Xác định tử và mẫu
+					int Tu = vector1[0] * vector2[0] + vector1[1] * vector2[1];
+					double Mau = length_vector1 * length_vector2;
+					rotateAngle = Math.Acos(Tu / Mau) * 180 / Math.PI;
+					//if (menuEnd.X > CenterRotate.X)
+					//    rotateAngle = -rotateAngle;
+					if (menuEnd.X < CenterRotate.X)
+						rotateAngle += 90;
+					Point temp = pStart;
+
+					double r = rotateAngle * Math.PI / 180;
+					// Toa do sau khi xoay cua pStart va pEnd
+					int pSRx = (int)(Math.Cos(r) * pStart.X - Math.Sin(r) * pStart.Y);
+					int pSRy = (int)(Math.Cos(r) * pStart.Y + Math.Sin(r) * pStart.X);
+					int pERx = (int)(Math.Cos(r) * pEnd.X - Math.Sin(r) * pEnd.Y);
+					int pERy = (int)(Math.Cos(r) * pEnd.X + Math.Sin(r) * pEnd.Y);
+
+					pStart = new Point(pSRx, pSRy);
+					pEnd = new Point(pERx, pERy);
+
+					// Tao lst
+					List<Point> lst = new List<Point>();
+					lst.Add(pStart);
+					lst.Add(pEnd);
+					// Khi nguoi dung vua ve xong hinh thi ve control points
+					drawControlPoints(lst, shShape);
+					// Thuc hien lui doi tuong da ve vao List<MyBitMap> bm
+					MyBitMap tmp = new MyBitMap(colorUserColor, shShape, currentSize);
+					tmp.controlPoints.Add(pStart);
+					tmp.controlPoints.Add(pEnd);
+					// Them tmp vao bm
+					bm.Add(tmp);
+				}
+				// reset lai toa do
+				pStart = new Point(-1, -1);
+				pEnd = new Point(-1, -1);
 			}
 			else
 			{
