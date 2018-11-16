@@ -1808,8 +1808,8 @@ namespace SharpGL
 			#region Flood fill stack
 			if (fill_color == old_color) return; // Tranh lap vo han
 
-			int[] dx = new int[] { 0, 1, 0, -1 }; // Cac nhanh lan can 4 cua x
-			int[] dy = new int[] { -1, 0, 1, 0 }; // Cac nhanh lan can 4 cua y
+			int[] dx = new int[] { 0, 2, 0, -2 }; // Cac nhanh lan can 4 cua x
+			int[] dy = new int[] { -2, 0, 2, 0 }; // Cac nhanh lan can 4 cua y
 
 			Stack<Point> s = new Stack<Point>(); // Khoi tao stack
 			s.Push(new Point(x, y)); // Push diem dau vao Stack
@@ -1976,20 +1976,19 @@ namespace SharpGL
 					openGLControl.Cursor = Cursors.Default; // Tra ve con tro chuot nhu cu
 					isDown = 0; // chuot het di chuyen
 
-
-
 					// Thuc hien lui doi tuong da ve vao List<MyBitMap> bm
 					MyBitMap tmp = new MyBitMap(colorUserColor, shShape, currentSize);
-					if (shShape == ShapeMode.FLOOD_FILL) // Neu to mau thi chi can luu diem dau tien click vao
+					if (shShape == ShapeMode.FLOOD_FILL)
+					{ // Neu to mau thi chi can luu diem dau tien click vao
 						tmp.controlPoints.Add(pStart);
+					}
 					else // Con ve thi luu 2 diem
 					{
 						tmp.controlPoints.Add(pStart);
 						tmp.controlPoints.Add(pEnd);
+						// Khi nguoi dung vua ve xong hinh thi ve control points
+						drawControlPoints(tmp.controlPoints, shShape);
 					}
-
-					// Khi nguoi dung vua ve xong hinh thi ve control points
-					drawControlPoints(tmp.controlPoints, shShape);
 
 					// Them tmp vao bm
 					bm.Add(tmp);
