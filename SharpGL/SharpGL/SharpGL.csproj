@@ -63,8 +63,15 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Shape\Circle.cs" />
+    <Compile Include="Shape\Ellipse.cs" />
+    <Compile Include="Shape\Hexagon.cs" />
     <Compile Include="Shape\Line.cs" />
+    <Compile Include="Shape\Pentagon.cs" />
+    <Compile Include="Shape\Polygon.cs" />
+    <Compile Include="Shape\Rectangle.cs" />
     <Compile Include="Shape\Shape.cs" />
+    <Compile Include="Shape\Triangle.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

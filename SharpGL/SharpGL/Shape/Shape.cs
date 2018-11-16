@@ -10,7 +10,7 @@ namespace SharpGL.Shape
     {
         protected Point pStart;
         protected Point pEnd;
-        protected string ShapeKind;
+        protected ShapeMode ShapeKind;
 
         public abstract void draw(OpenGL gl);
     }

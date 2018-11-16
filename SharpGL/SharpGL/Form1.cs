@@ -58,9 +58,9 @@ namespace SharpGL
 			brushSize = size;
 		}
 	}
-
 	public partial class Form_Paint : Form
 	{
+        
 		// Tọa độ điểm di chuyển sau khi chọn menu de thuc hien phep translate, rotate & scale
 		Point menuStart, menuEnd;
         // 2 Tọa độ tạm thời
@@ -83,7 +83,7 @@ namespace SharpGL
 		ButtonColor currentButtonColor; // Nut chon mau hien tai
 
 		List<MyBitMap> bm = new List<MyBitMap>(); // Dung de luu tru cac doi tuong da ve
-		bool isRigtClick = false;
+		static public bool isRigtClick = false;
 
 		public Form_Paint()
 		{
@@ -271,12 +271,12 @@ namespace SharpGL
 		}
 
 		// Ham tinh khoang cach giua pStart va pEnd
-		private void calculateDistance(Point a, Point b, out double d)
+		public static void calculateDistance(Point a, Point b, out double d)
 		{
 			d = Math.Sqrt(Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2));
 		}
 
-		private void calculateDistance(int xa, int ya, int xb, int yb, out double d)
+		public static void calculateDistance(int xa, int ya, int xb, int yb, out double d)
 		{
 			d = Math.Sqrt(Math.Pow(xa - xb, 2) + Math.Pow(ya - yb, 2));
 		}
@@ -371,7 +371,7 @@ namespace SharpGL
 			#endregion
 		}
 		// Ham overide ve cac diem trong diem doi xung trong duong tron co them tham so pointSize
-		private void put8Pixel(OpenGL gl, int a, int b, int x, int y, int pointSize)
+		public static void put8Pixel(OpenGL gl, int a, int b, int x, int y, int pointSize)
 		{
 			gl.PointSize(pointSize);
 			gl.Begin(OpenGL.GL_POINTS);
@@ -429,7 +429,7 @@ namespace SharpGL
 		}
 
 		// Ham ve cac diem doi xung trong ellipse
-		private void put4Pixel(OpenGL gl, int a, int b, int x, int y)
+		public static void put4Pixel(OpenGL gl, int a, int b, int x, int y)
 		{
 			gl.PointSize(currentSize);
 			gl.Begin(OpenGL.GL_POINTS);
@@ -442,7 +442,7 @@ namespace SharpGL
 		}
 
 		// Ham lam tron
-		int Round(double x)
+		public static int Round(double x)
 		{
 			return (int)(x + 0.5);
 		}
