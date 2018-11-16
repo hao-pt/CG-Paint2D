@@ -32,7 +32,7 @@ namespace SharpGL
 		HEXAGON,
 		POLYGON,
 		FLOOD_FILL,
-        SCAN_LINES
+		SCAN_LINES
 	}
 
 	// Kiểu enum Menu cho checklistbox
@@ -66,7 +66,7 @@ namespace SharpGL
 		{
 			controlPoints = new List<Point>(); // Khoi tao list
 			controlPoints.AddRange(lst);
-											   // Gan cac thong so can thiet
+			// Gan cac thong so can thiet
 			colorUse = _color;
 			type = _type;
 			brushSize = size;
@@ -88,20 +88,20 @@ namespace SharpGL
 			else
 				flag = false;
 		}
-		
-	}
-    public struct MyPoint// toa do diem luu theo kieu float
-    {
-        public float X;
-        public float Y;
-        public MyPoint(float _x, float _y)
-        {
-            X = _x;
-            Y = _y;
-        }
-    }
 
-    public partial class Form_Paint : Form
+	}
+	public struct MyPoint// toa do diem luu theo kieu float
+	{
+		public float X;
+		public float Y;
+		public MyPoint(float _x, float _y)
+		{
+			X = _x;
+			Y = _y;
+		}
+	}
+
+	public partial class Form_Paint : Form
 	{
 		// Tọa độ điểm di chuyển sau khi chọn menu de thuc hien phep translate, rotate & scale
 		Point menuStart, menuEnd;
@@ -167,7 +167,8 @@ namespace SharpGL
 					bt_Right_Color.BackColor = colorDialog1.Color;
 
 				colorUserColor = colorDialog1.Color; // Luu lai mau user chon
-				if (chooseItem == SharpGL.Menu.SELECT) { // Neu nguoc dung dang select ma thay doi mau
+				if (chooseItem == SharpGL.Menu.SELECT)
+				{ // Neu nguoc dung dang select ma thay doi mau
 					isChangedColor = true;
 				}
 			}
@@ -354,7 +355,7 @@ namespace SharpGL
 		// Ham ve cac diem trong diem doi xung trong duong tron
 		private void put8Pixel(OpenGL gl, int a, int b, int x, int y)
 		{
-			gl.PointSize(currentSize);
+			gl.PointSize(currentSize + 1);
 			gl.Begin(OpenGL.GL_POINTS);
 			gl.Vertex(a + x, b + y);
 			gl.Vertex(a + x, b - y);
@@ -443,7 +444,7 @@ namespace SharpGL
 		// Ham overide ve cac diem trong diem doi xung trong duong tron co them tham so pointSize
 		private void put8Pixel(OpenGL gl, int a, int b, int x, int y, int pointSize)
 		{
-			gl.PointSize(pointSize);
+			gl.PointSize(pointSize + 1);
 			gl.Begin(OpenGL.GL_POINTS);
 			gl.Vertex(a + x, b + y);
 			gl.Vertex(a + x, b - y);
@@ -501,7 +502,7 @@ namespace SharpGL
 		// Ham ve cac diem doi xung trong ellipse
 		private void put4Pixel(OpenGL gl, int a, int b, int x, int y)
 		{
-			gl.PointSize(currentSize);
+			gl.PointSize(currentSize + 1);
 			gl.Begin(OpenGL.GL_POINTS);
 			gl.Vertex(a + x, b + y);
 			gl.Vertex(a + x, b - y);
@@ -609,7 +610,7 @@ namespace SharpGL
 		// Ham overide ve cac diem doi xung trong ellipse co them tham so pointSize 
 		private void put4Pixel(OpenGL gl, int a, int b, int x, int y, int pointSize)
 		{
-			gl.PointSize(pointSize);
+			gl.PointSize(pointSize + 1);
 			gl.Begin(OpenGL.GL_POINTS);
 			gl.Vertex(a + x, b + y);
 			gl.Vertex(a + x, b - y);
@@ -1211,8 +1212,9 @@ namespace SharpGL
 						//floodFill(gl, p1.X, p1.Y, bm[i].colorUse, Color.Black);
 						floodFillScanLineStack(gl, p1.X, p1.Y, bm[i].colorUse, Color.Black);
 						break;
-                    case ShapeMode.SCAN_LINES:
-                        break;
+					case ShapeMode.SCAN_LINES:
+
+						break;
 				}
 			}
 		}
@@ -1516,6 +1518,150 @@ namespace SharpGL
 			}
 		}
 
+		// Ham lay tat cac cac dinh cua 1 object
+		private void findAllVerticesOfObject(MyBitMap obj, out List<Point> lst_vertices)
+		{
+			// Lay cac control point cua obj
+			List<Point> lst = new List<Point>();
+			lst.AddRange(obj.controlPoints);
+			bool flag = false;
+			lst_vertices = new List<Point>(); // Khoi tao
+			int totalSegments = 0;
+			if (obj.type != ShapeMode.POLYGON)
+			{
+				Point p1 = new Point(lst[0].X, lst[0].Y);
+				Point p2 = new Point(lst[1].X, lst[1].Y);
+				switch (obj.type)
+				{
+					case ShapeMode.LINE:
+						// Duong thang thi chi co 2 đỉnh
+						lst_vertices.Add(p1);
+						lst_vertices.Add(p2);
+						break;
+					case ShapeMode.RECTANGLE:
+						// Toa do diem dau: (x1, y1)
+						// Toa do diem cuoi: (x2, y2)
+						int x1 = p1.X; int y1 = p1.Y;
+						int x2 = p2.X; int y2 = p2.Y;
+
+						lst_vertices.Add(new Point(x1, y1)); // Dinh 1: (x1, y1)
+						lst_vertices.Add(new Point(x2, y1)); // Dinh 2: (x2, y1)
+						lst_vertices.Add(new Point(x2, y2)); // Dinh 3: (x2, y2)
+						lst_vertices.Add(new Point(x1, y2)); // Dinh 4: (x1, y2)
+						break;
+					case ShapeMode.ELLIPSE:
+						OpenGL gl = openGLControl.OpenGL;
+
+						totalSegments = 45;
+
+						// Tinh lai toa doa p1, p2 do tinh diem cua tam giac so thuc hien phep quay
+						p1 = new Point(p1.X, gl.RenderContextProvider.Height - p1.Y);
+						p2 = new Point(p2.X, gl.RenderContextProvider.Height - p2.Y);
+
+						// Tinh tam C(xc, yc) cua ellipse
+						// Dat tam C la trung diem cua doan thang noi pStart va pEnd
+						int xc = Round((double)(p1.X + p2.X) / 2);
+						int yc = Round((double)(p1.Y + p2.Y) / 2);
+
+						// Goi A(xa, ya) la giao diem cua 0x va ellipse
+						int xa = p2.X;
+						int ya = Round((double)(p1.Y + p2.Y) / 2);
+
+						// Goi B(xb, yb) la giao diem cua 0y va ellipse
+						int xb = Round((double)(p1.X + p2.X) / 2);
+						int yb = p1.Y;
+
+						// Tinh rx va ry
+						double rx;
+						calculateDistance(xa, ya, xc, yc, out rx);
+						double ry;
+						calculateDistance(xb, yb, xc, yc, out ry);
+
+						Point pV; // them cac dinh Ellipse vao
+						for (int alpha = 0; alpha < 360; alpha += 360 / totalSegments)
+						{
+							// Đổi về radian
+							double alpha_rad = alpha * Math.PI / 180;
+							// Tinh x, y
+							pV = new Point(Round(xc + rx * Math.Cos(alpha_rad))
+								, gl.RenderContextProvider.Height - Round(yc + ry * Math.Sin(alpha_rad)));
+							// Them cac dinh cua obj vao
+							lst_vertices.Add(pV);
+						}
+
+						break;
+					case ShapeMode.CIRCLE:
+						// Tinh lại tọa độ của pStart, pEnd dựa theo đỉnh của Circle
+						// Mỗi đỉnh hinh tron xoay 1 góc 8 độ
+						totalSegments = 45;
+						flag = true;
+						break;
+					case ShapeMode.TRIANGLE:
+						// Tinh lại tọa độ của pStart, pEnd dựa theo đỉnh của tam giác đều
+						// Mỗi đỉnh tam giác đều xoay 1 góc 120 độ
+						totalSegments = 3;
+						flag = true;
+
+						break;
+					case ShapeMode.PENTAGON:
+						// Tinh lại tọa độ của pStart, pEnd dựa theo đỉnh của Pentagon
+						// Mỗi đỉnh pentagon xoay 1 góc 72 độ
+						totalSegments = 5;
+						flag = true;
+
+						break;
+					case ShapeMode.HEXAGON:
+						// Tinh lại tọa độ của pStart, pEnd dựa theo đỉnh của Hexagon
+						// Mỗi đỉnh pentagon xoay 1 góc 60 độ
+						totalSegments = 6;
+						flag = true;
+						break;
+
+				}
+
+				if (flag)
+				{
+					OpenGL gl = openGLControl.OpenGL;
+
+					// Tinh lai toa doa p1, pSymmetry do tinh diem cua tam giac so thuc hien phep quay
+					p1 = new Point(p1.X, gl.RenderContextProvider.Height - p1.Y);
+					p2 = new Point(p2.X, gl.RenderContextProvider.Height - p2.Y);
+
+					// Ban kinh la cung chinh la canh cua hinh vuong 
+					//do duong tron noi tiep hinh vuong co duong cheo di qua p1 va pSymmetry
+					double r;
+					calculateDistance(p1, p2, out r);
+					r = r / (2 * Math.Sqrt(2));
+
+					// Tam duong tron tai trung diem cua doan thang noi pStart và pSymmetry
+					int xc = (p1.X + p2.X) / 2;
+					int yc = (p1.Y + p2.Y) / 2;
+
+					// Gia su xet tai tam 0(0, 0)
+					int x = 0;
+					int y = (int)r;
+
+					Point pV; // Cac dinh cua obj vao
+
+					for (int alpha = 0; alpha < 360; alpha += 360 / totalSegments)
+					{
+						// Đổi về radian
+						double alpha_rad = alpha * Math.PI / 180;
+						// Tinh x, y
+						pV = new Point(Round(xc + x * Math.Cos(alpha_rad) - y * Math.Sin(alpha_rad))
+							, gl.RenderContextProvider.Height - Round(yc + x * Math.Sin(alpha_rad) + y * Math.Cos(alpha_rad)));
+						// Them cac dinh cua obj vao
+						lst_vertices.Add(pV);
+					}
+				}
+
+			}
+			else if (obj.type == ShapeMode.POLYGON)
+			{
+				lst_vertices.AddRange(obj.controlPoints);
+			}
+		}
+
 		private void recalculate_pStart_and_pEnd(ShapeMode sh)
 		{
 			// Do cac hinh duong tron, tam giac deu, ngu giac deu, luc giac deu 
@@ -1599,7 +1745,7 @@ namespace SharpGL
 					Point p1, p2;
 					p1 = bm[i].controlPoints[0];
 					p2 = bm[i].controlPoints[1];
-					
+
 					if (p1.X < p2.X)
 					{
 						xmin = p1.X;
@@ -1622,7 +1768,7 @@ namespace SharpGL
 						ymax = p1.Y;
 					}
 
-					
+
 				}
 				else
 				{
@@ -1645,7 +1791,7 @@ namespace SharpGL
 							ymax = lst[j].Y;
 					}
 
-					
+
 
 
 				}
@@ -1673,7 +1819,6 @@ namespace SharpGL
 
 		private void openGLControl_OpenGLDraw(object sender, RenderEventArgs args)
 		{
-			
 
 			if (isDown == 1) // Neu nguoi dung dang Mouse down thi moi ve
 			{
@@ -1724,7 +1869,7 @@ namespace SharpGL
 
 				// Stopwatch ho tro do thoi gian
 				Stopwatch myTimer = new Stopwatch();
-				if(chooseItem == SharpGL.Menu.DRAWING)
+				if (chooseItem == SharpGL.Menu.DRAWING)
 					myTimer.Start(); // bat dau do
 
 				//===================================================================//
@@ -1792,9 +1937,23 @@ namespace SharpGL
 						//floodFill(gl, pStart.X, pStart.Y, colorUserColor, old_color);
 						floodFillScanLineStack(gl, pStart.X, pStart.Y, colorUserColor, old_color);
 						break;
-                    case ShapeMode.SCAN_LINES:
+					case ShapeMode.SCAN_LINES:
+						edgeTable ET = new edgeTable();
+						// Select de lay doi tuong nay
+						MyBitMap obj;
+						int index;
+						selectOneObject(out obj, out index);
+						// Kiem tra xem co null hay khong?
+						bool isNull = false;
+						obj.isNull(out isNull);
+						if (!isNull)
+						{
+							List<Point> lst_vertices = new List<Point>();
+							findAllVerticesOfObject(obj, out lst_vertices);
+							//ET.storeEdges(lst_vertices);
 
-                        break;
+						}
+						break;
 				}
 
 				if (chooseItem == SharpGL.Menu.DRAWING)
@@ -1929,7 +2088,7 @@ namespace SharpGL
 
 			int x1;
 			bool spanAbove, spanBelow; // kiem tra xem co test spanAbove va spanBelow chua
-			// Neu no la 1 phan cua new scanline hoac no da duoc push vao stack
+									   // Neu no la 1 phan cua new scanline hoac no da duoc push vao stack
 
 			Stack<Point> s = new Stack<Point>();
 			s.Push(new Point(x, y));
@@ -1946,16 +2105,16 @@ namespace SharpGL
 				Color color = new Color();
 				color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
 				// Day x1 sang ben trai de quet tu trai sang
-				while (x1 >= 0 && (color.A == old_color.A && 
-					color.R == old_color.R && color.G == old_color.G && color.B == old_color.B)) 
+				while (x1 >= 0 && (color.A == old_color.A &&
+					color.R == old_color.R && color.G == old_color.G && color.B == old_color.B))
 				{
 					x1 -= 2;
 					getPixelColor(gl, x1, y, out pixel);
 					color = new Color();
 					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
 				}
-				x1 += 2; 
-				
+				x1 += 2;
+
 				// Danh dau la chua check spanAbove va spanBelow
 				spanAbove = spanBelow = false;
 
@@ -1992,14 +2151,14 @@ namespace SharpGL
 					color = new Color();
 					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
 					// Kiêm tra cho scanline below va gieo hat giong
-					if (!spanBelow && gl.RenderContextProvider.Height - y < gl.RenderContextProvider.Height - 2 
-						&&(color.A == old_color.A && color.R == old_color.R && color.G == old_color.G && color.B == old_color.B))
+					if (!spanBelow && gl.RenderContextProvider.Height - y < gl.RenderContextProvider.Height - 2
+						&& (color.A == old_color.A && color.R == old_color.R && color.G == old_color.G && color.B == old_color.B))
 					{
 						s.Push(new Point(x1, y + 2));
 						spanBelow = true;
 					}
 					// Neu hat giong da kiem tra va to mau roi
-					else if (spanAbove && gl.RenderContextProvider.Height - y < gl.RenderContextProvider.Height - 2 
+					else if (spanAbove && gl.RenderContextProvider.Height - y < gl.RenderContextProvider.Height - 2
 						&& (color.A != old_color.A || color.R == old_color.R || color.G == old_color.G || color.B == old_color.B))
 					{
 						spanBelow = false;
@@ -2011,68 +2170,69 @@ namespace SharpGL
 				}
 			}
 		}
-        // ===========================================SCANLINE===========================================
-        void scanLineColorFill(OpenGL gl, edgeTable eTable, Color chosenColor) // using scan lines to fill color
-        {
-            Hashtable ht = new Hashtable();
-            ht = eTable.getEdgeTable();
-            LinkedList<edgeNode> begList = new LinkedList<edgeNode>();
-            //gl.Enable(OpenGL.GL_LINE_SMOOTH);
-            int start = eTable.getMinKey(), end = eTable.getMaxKey();
+		// ===========================================SCANLINE===========================================
 
-            for (int y = start; y <= end; y++)
-            {
-                // STEP 1: Adding edges to begList
-                if (ht.ContainsKey(y))
-                {
-                    foreach (edgeNode e in (LinkedList<edgeNode>)ht[y])
-                    {
-                        begList.AddLast(e);
-                    }
-                }
-                // STEP 2: Sorting edges according to xIntersect
-                var sortedBegList = ((LinkedList<edgeNode>)begList).OrderBy(edgeNode => edgeNode.getXIntersect());
+		private void scanLineColorFill(OpenGL gl, edgeTable eTable, Color chosenColor) // using scan lines to fill color
+		{
+			Hashtable ht = new Hashtable();
+			ht = eTable.getEdgeTable();
+			LinkedList<edgeNode> begList = new LinkedList<edgeNode>();
+			//gl.Enable(OpenGL.GL_LINE_SMOOTH);
+			int start = eTable.getMinKey(), end = eTable.getMaxKey();
 
-                // STEP 3: Drawing Line
-                var node1 = begList.First;
-                while (node1 != null) // when not having come to tail
-                {
-                    var nextNode = node1.Next;
-                    var nextNextNode = nextNode.Next;
-                    Point p1 = new Point((int)node1.Value.getXIntersect(), y);
-                    Point p2 = new Point((int)nextNode.Value.getXIntersect(), y);
-                    //gl.Color(colorUserColor.R / 255.0, colorUserColor.G / 255.0, colorUserColor.B / 255.0, 0);
-                    gl.Color(chosenColor.R / 255.0, chosenColor.G / 255.0, chosenColor.B / 255.0, 0);
-                    gl.Begin(OpenGL.GL_LINES);
-                    gl.Vertex(p1.X, p1.Y);
-                    gl.Vertex(p2.X + 2, p2.Y);
-                    gl.End();
-                    node1 = nextNextNode;
-                }
+			for (int y = start; y <= end; y++)
+			{
+				// STEP 1: Adding edges to begList
+				if (ht.ContainsKey(y))
+				{
+					foreach (edgeNode e in (LinkedList<edgeNode>)ht[y])
+					{
+						begList.AddLast(e);
+					}
+				}
+				// STEP 2: Sorting edges according to xIntersect
+				var sortedBegList = ((LinkedList<edgeNode>)begList).OrderBy(edgeNode => edgeNode.getXIntersect());
 
-                // STEP 4: Delete edge having yUpper = y
-                var node = begList.First; // first element of begList
-                while (node != null)
-                {
-                    var nextNode = node.Next;
-                    if (node.Value.getYUpper() == y)
-                        begList.Remove(node);// remove nodes having yUpper = y
-                    node = nextNode;
-                }
+				// STEP 3: Drawing Line
+				var node1 = begList.First;
+				while (node1 != null) // when not having come to tail
+				{
+					var nextNode = node1.Next;
+					var nextNextNode = nextNode.Next;
+					Point p1 = new Point((int)node1.Value.getXIntersect(), y);
+					Point p2 = new Point((int)nextNode.Value.getXIntersect(), y);
+					//gl.Color(colorUserColor.R / 255.0, colorUserColor.G / 255.0, colorUserColor.B / 255.0, 0);
+					gl.Color(chosenColor.R / 255.0, chosenColor.G / 255.0, chosenColor.B / 255.0, 0);
+					gl.Begin(OpenGL.GL_LINES);
+					gl.Vertex(p1.X, p1.Y);
+					gl.Vertex(p2.X + 2, p2.Y);
+					gl.End();
+					node1 = nextNextNode;
+				}
 
-                // STEP 5: Update xIntersect
-                foreach (edgeNode e in begList)
-                {
-                    e.updateXIntersect();
-                }
-            }
-            gl.Flush();
-            //gl.Disable(OpenGL.GL_LINE_SMOOTH);
-        }
+				// STEP 4: Delete edge having yUpper = y
+				var node = begList.First; // first element of begList
+				while (node != null)
+				{
+					var nextNode = node.Next;
+					if (node.Value.getYUpper() == y)
+						begList.Remove(node);// remove nodes having yUpper = y
+					node = nextNode;
+				}
+
+				// STEP 5: Update xIntersect
+				foreach (edgeNode e in begList)
+				{
+					e.updateXIntersect();
+				}
+			}
+			gl.Flush();
+			//gl.Disable(OpenGL.GL_LINE_SMOOTH);
+		}
 
 
-        // Ham xu ly su kien to mau theo vet loang
-        private void bt_Flood_Fill_Click(object sender, EventArgs e)
+		// Ham xu ly su kien to mau theo vet loang
+		private void bt_Flood_Fill_Click(object sender, EventArgs e)
 		{
 			shShape = ShapeMode.FLOOD_FILL;
 		}
@@ -2141,7 +2301,7 @@ namespace SharpGL
 
 					// Thuc hien lui doi tuong da ve vao List<MyBitMap> bm
 					MyBitMap tmp = new MyBitMap(colorUserColor, shShape, currentSize);
-					if (shShape == ShapeMode.FLOOD_FILL)
+					if (shShape == ShapeMode.FLOOD_FILL || shShape == ShapeMode.SCAN_LINES)
 					{ // Neu to mau thi chi can luu diem dau tien click vao
 						tmp.controlPoints.Add(pStart);
 					}
@@ -2178,7 +2338,8 @@ namespace SharpGL
 		private void cBox_Choose_Size_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			currentSize = int.Parse(cBox_Choose_Size.Text);
-			if(chooseItem == SharpGL.Menu.SELECT) { // Neu nguoc dung dang select ma thay doi size
+			if (chooseItem == SharpGL.Menu.SELECT)
+			{ // Neu nguoc dung dang select ma thay doi size
 				isChangedSize = true;
 			}
 		}
@@ -2214,12 +2375,12 @@ namespace SharpGL
 			menuStart = new Point(-1, -1);
 		}
 
-        private void bt_Scan_Lines_Click(object sender, EventArgs e)
-        {
-            shShape = ShapeMode.SCAN_LINES;
-        }
+		private void bt_Scan_Lines_Click(object sender, EventArgs e)
+		{
+			shShape = ShapeMode.SCAN_LINES;
+		}
 
-        private void chkLstBox_Options_SelectedIndexChanged(object sender, EventArgs e)
+		private void chkLstBox_Options_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			switch (chkLstBox_Options.SelectedIndex)
 			{
@@ -2257,6 +2418,7 @@ namespace SharpGL
 					// Cap nhat toa do diem dau
 					pStart = new Point(e.Location.X, e.Location.Y); // e la tham so lien quan den su kien chon diem
 					pEnd = new Point(e.X, e.Y); // Mac dinh pEnd = pStart
+
 				}
 				else // Neu la hinh da giac
 				{
@@ -2300,146 +2462,146 @@ namespace SharpGL
 		}
 
 	}
-    // Kieu edgeNode de luu cac thong tin cua mot canh (dung de luu vao bang edgeTable cho to mau Scanline)
-    class edgeNode
-    {
-        int yUpper;
-        float xIntersect;
-        float slopeInverse;
+	// Kieu edgeNode de luu cac thong tin cua mot canh (dung de luu vao bang edgeTable cho to mau Scanline)
+	class edgeNode
+	{
+		int yUpper;
+		float xIntersect;
+		float slopeInverse;
 
-        public int getYUpper()// Lay y_upper
-        {
-            return yUpper;
-        }
-        public float getXIntersect() // Lay x_intersect
-        {
-            return xIntersect;
-        }
-        public float getSlopeInverse() // Lay nghich dao do doc
-        {
-            return slopeInverse;
-        }
-        public void updateXIntersect() // cap nhat lai gia tri cua xIntersect sau khi draw xong mot scan line
-        {
-            xIntersect += slopeInverse;
-        }
-        public edgeNode(int _yUpper, float _xIntersect, float _slopeInverse) // constructor
-        {
-            yUpper = _yUpper;
-            xIntersect = _xIntersect;
-            slopeInverse = _slopeInverse;
-        }
-    }
-    // bang edgeTable de ho tro to mau ScanLine
-    class edgeTable
-    {
-        Hashtable ht = new Hashtable();
-        int minKey = 99999, maxKey = -1;//key nho nhat va lon nhat ma co chua mot linked list cac edge
+		public int getYUpper()// Lay y_upper
+		{
+			return yUpper;
+		}
+		public float getXIntersect() // Lay x_intersect
+		{
+			return xIntersect;
+		}
+		public float getSlopeInverse() // Lay nghich dao do doc
+		{
+			return slopeInverse;
+		}
+		public void updateXIntersect() // cap nhat lai gia tri cua xIntersect sau khi draw xong mot scan line
+		{
+			xIntersect += slopeInverse;
+		}
+		public edgeNode(int _yUpper, float _xIntersect, float _slopeInverse) // constructor
+		{
+			yUpper = _yUpper;
+			xIntersect = _xIntersect;
+			slopeInverse = _slopeInverse;
+		}
+	}
+	// bang edgeTable de ho tro to mau ScanLine
+	class edgeTable
+	{
+		Hashtable ht = new Hashtable();
+		int minKey = 99999, maxKey = -1;//key nho nhat va lon nhat ma co chua mot linked list cac edge
 
-        private bool isExtreme(MyPoint p1, MyPoint p2, MyPoint p3) // Kiem tra giao diem cua 2 canh co phai la cuc tri (giao diem o day la p2)
-        {
-            if ((p2.Y > p1.Y && p2.Y > p3.Y) || (p2.Y < p1.Y && p2.Y < p3.Y)) // p2 la diem chung cua 2 canh
-                return true;
-            return false;
-        }
-        private float calSlopeCoeff(MyPoint p1, MyPoint p2) // tinh he so goc cua mot canh
-        {
-            if (p2.X == p1.X)
-                return 0;
-            return ((float)(p2.Y - p1.Y)) / (p2.X - p1.X);
-        }
-        public Hashtable getEdgeTable() // Tra ve edge table
-        {
-            return ht;
-        }
-        public int getMinKey() // Tra ve minKey
-        {
-            return minKey;
-        }
-        public int getMaxKey() // Tra ve minKey
-        {
-            return maxKey;
-        }
+		private bool isExtreme(MyPoint p1, MyPoint p2, MyPoint p3) // Kiem tra giao diem cua 2 canh co phai la cuc tri (giao diem o day la p2)
+		{
+			if ((p2.Y > p1.Y && p2.Y > p3.Y) || (p2.Y < p1.Y && p2.Y < p3.Y)) // p2 la diem chung cua 2 canh
+				return true;
+			return false;
+		}
+		private float calSlopeCoeff(MyPoint p1, MyPoint p2) // tinh he so goc cua mot canh
+		{
+			if (p2.X == p1.X)
+				return 0;
+			return ((float)(p2.Y - p1.Y)) / (p2.X - p1.X);
+		}
+		public Hashtable getEdgeTable() // Tra ve edge table
+		{
+			return ht;
+		}
+		public int getMinKey() // Tra ve minKey
+		{
+			return minKey;
+		}
+		public int getMaxKey() // Tra ve minKey
+		{
+			return maxKey;
+		}
 
-        public void storeEdges(List<MyPoint> pList) // luu thong tin tat ca cac canh(y_upper, x_intersect, inverse of slope) cua mot da giac vao bang bam ht
-        {
-            int size = pList.Count;
-            for (int i = 0; i < size; i++)
-            {
-                // ================================INIT==================================
-                // previous point, current point and next point
-                MyPoint prevPoint, curPoint, nextPoint;
-                // previous point: la diem lien truoc cua current point
-                if (i - 1 < 0)
-                    prevPoint = pList[size - 1];
-                else
-                    prevPoint = pList[i - 1];
-                // current point: la diem tai index i hien tai
-                curPoint = pList[i];
-                // next point: la diem lien sau cua current point
-                if (i + 1 > size - 1)
-                    nextPoint = pList[0];
-                else
-                    nextPoint = pList[i + 1];
+		public void storeEdges(List<MyPoint> pList) // luu thong tin tat ca cac canh(y_upper, x_intersect, inverse of slope) cua mot da giac vao bang bam ht
+		{
+			int size = pList.Count;
+			for (int i = 0; i < size; i++)
+			{
+				// ================================INIT==================================
+				// previous point, current point and next point
+				MyPoint prevPoint, curPoint, nextPoint;
+				// previous point: la diem lien truoc cua current point
+				if (i - 1 < 0)
+					prevPoint = pList[size - 1];
+				else
+					prevPoint = pList[i - 1];
+				// current point: la diem tai index i hien tai
+				curPoint = pList[i];
+				// next point: la diem lien sau cua current point
+				if (i + 1 > size - 1)
+					nextPoint = pList[0];
+				else
+					nextPoint = pList[i + 1];
 
-                // ==============================PROCESSING===============================
-                // Tinh slope
-                float slope = calSlopeCoeff(curPoint, nextPoint);// tinh he so goc
-                if (slope == 0 && curPoint.X != nextPoint.X) // Neu canh vuong goc Oy thi chay den vong lap tiep theo
-                    continue;
+				// ==============================PROCESSING===============================
+				// Tinh slope
+				float slope = calSlopeCoeff(curPoint, nextPoint);// tinh he so goc
+				if (slope == 0 && curPoint.X != nextPoint.X) // Neu canh vuong goc Oy thi chay den vong lap tiep theo
+					continue;
 
-                float slopeInverse = 0; // nghich dao do doc cua canh dang xet, default la 0 cho truong hop canh vuong goc voi Ox
-                if (slope != 0)
-                    slopeInverse = 1 / slope;
+				float slopeInverse = 0; // nghich dao do doc cua canh dang xet, default la 0 cho truong hop canh vuong goc voi Ox
+				if (slope != 0)
+					slopeInverse = 1 / slope;
 
-                // Tinh yUpper
-                int yUpper;
+				// Tinh yUpper
+				int yUpper;
 
-                if (nextPoint.Y > curPoint.Y) // xet toa do y cua dinh dau va dinh cuoi, cai nao lon hon se duoc chon
-                {
-                    yUpper = (int)nextPoint.Y;
-                    MyPoint nextNextPoint; // diem lien sau cua diem nextPoint
-                    if (i + 2 > size - 1) // (i+2) la index cua diem lien sau nextPoint, neu no vuot ra khoi do dai danh sach
-                        nextNextPoint = pList[i + 2 - size]; // thi coi nhu no se tro ve dau danh sach
-                    else // nguoc lai truy xuat binh thuong
-                        nextNextPoint = pList[i + 2];
-                    if (isExtreme(curPoint, nextPoint, nextNextPoint) == false) // Kiem tra co phai la cuc tri
-                        yUpper--;
-                }
-                else
-                {
-                    yUpper = (int)curPoint.Y;
-                    if (isExtreme(prevPoint, curPoint, nextPoint) == false)// Kiem tra co phai la cuc tri
-                        yUpper--;
-                }
-                if (yUpper > maxKey) // Neu thoa dieu kien nay thi cap nhat lai maxKey
-                    maxKey = yUpper - 1;
+				if (nextPoint.Y > curPoint.Y) // xet toa do y cua dinh dau va dinh cuoi, cai nao lon hon se duoc chon
+				{
+					yUpper = (int)nextPoint.Y;
+					MyPoint nextNextPoint; // diem lien sau cua diem nextPoint
+					if (i + 2 > size - 1) // (i+2) la index cua diem lien sau nextPoint, neu no vuot ra khoi do dai danh sach
+						nextNextPoint = pList[i + 2 - size]; // thi coi nhu no se tro ve dau danh sach
+					else // nguoc lai truy xuat binh thuong
+						nextNextPoint = pList[i + 2];
+					if (isExtreme(curPoint, nextPoint, nextNextPoint) == false) // Kiem tra co phai la cuc tri
+						yUpper--;
+				}
+				else
+				{
+					yUpper = (int)curPoint.Y;
+					if (isExtreme(prevPoint, curPoint, nextPoint) == false)// Kiem tra co phai la cuc tri
+						yUpper--;
+				}
+				if (yUpper > maxKey) // Neu thoa dieu kien nay thi cap nhat lai maxKey
+					maxKey = yUpper - 1;
 
-                // Tinh xIntersect
-                float xIntersect = curPoint.X;
-                if (nextPoint.Y < curPoint.Y)// xet dinh dau va dinh cuoi cua canh, diem nao co y be hon thi x cua no se duoc chon lam x_intersect
-                    xIntersect = nextPoint.X;
+				// Tinh xIntersect
+				float xIntersect = curPoint.X;
+				if (nextPoint.Y < curPoint.Y)// xet dinh dau va dinh cuoi cua canh, diem nao co y be hon thi x cua no se duoc chon lam x_intersect
+					xIntersect = nextPoint.X;
 
-                //
-                edgeNode tmp = new edgeNode(yUpper, xIntersect, slopeInverse); // Luu cac thong tin vua tinh duoc vao bien tmp kieu edgeNode
-                int yMin = (int)curPoint.Y;// Tinh yMin, yMin duoc xem nhu la key de luu vao edgeTable
-                if (nextPoint.Y < yMin)
-                    yMin = (int)nextPoint.Y;
-                if (yMin < minKey) // Cap nhat lai minKey
-                    minKey = yMin;
+				//
+				edgeNode tmp = new edgeNode(yUpper, xIntersect, slopeInverse); // Luu cac thong tin vua tinh duoc vao bien tmp kieu edgeNode
+				int yMin = (int)curPoint.Y;// Tinh yMin, yMin duoc xem nhu la key de luu vao edgeTable
+				if (nextPoint.Y < yMin)
+					yMin = (int)nextPoint.Y;
+				if (yMin < minKey) // Cap nhat lai minKey
+					minKey = yMin;
 
-                if (ht.ContainsKey(yMin)) // Neu tai vi tri yMin trong edgeTable da ton tai mot linked list cac canh
-                {
-                    ((LinkedList<edgeNode>)ht[yMin]).AddLast(tmp); // Them vao phia sau cuar linked list
-                }
-                else // Neu chua
-                {
-                    LinkedList<edgeNode> eList = new LinkedList<edgeNode>();// Tao moi mot linked list va them no vao key yMin
-                    eList.AddLast(tmp);
-                    ht.Add(yMin, eList);
-                }
-            }
-        }
-    }
+				if (ht.ContainsKey(yMin)) // Neu tai vi tri yMin trong edgeTable da ton tai mot linked list cac canh
+				{
+					((LinkedList<edgeNode>)ht[yMin]).AddLast(tmp); // Them vao phia sau cuar linked list
+				}
+				else // Neu chua
+				{
+					LinkedList<edgeNode> eList = new LinkedList<edgeNode>();// Tao moi mot linked list va them no vao key yMin
+					eList.AddLast(tmp);
+					ht.Add(yMin, eList);
+				}
+			}
+		}
+	}
 
 }
