@@ -1527,22 +1527,26 @@ namespace SharpGL
 			bool flag = false;
 			lst_vertices = new List<Point>(); // Khoi tao
 			int totalSegments = 0;
+			OpenGL gl = openGLControl.OpenGL;
+
 			if (obj.type != ShapeMode.POLYGON)
 			{
 				Point p1 = new Point(lst[0].X, lst[0].Y);
 				Point p2 = new Point(lst[1].X, lst[1].Y);
 				switch (obj.type)
 				{
+
 					case ShapeMode.LINE:
+
 						// Duong thang thi chi co 2 đỉnh
-						lst_vertices.Add(p1);
-						lst_vertices.Add(p2);
+						lst_vertices.Add(new Point(p1.X, gl.RenderContextProvider.Height - p1.Y));
+						lst_vertices.Add(new Point(p2.X, gl.RenderContextProvider.Height - p2.Y));
 						break;
 					case ShapeMode.RECTANGLE:
 						// Toa do diem dau: (x1, y1)
 						// Toa do diem cuoi: (x2, y2)
-						int x1 = p1.X; int y1 = p1.Y;
-						int x2 = p2.X; int y2 = p2.Y;
+						int x1 = p1.X; int y1 = gl.RenderContextProvider.Height - p1.Y;
+						int x2 = p2.X; int y2 = gl.RenderContextProvider.Height - p2.Y;
 
 						lst_vertices.Add(new Point(x1, y1)); // Dinh 1: (x1, y1)
 						lst_vertices.Add(new Point(x2, y1)); // Dinh 2: (x2, y1)
@@ -1550,9 +1554,8 @@ namespace SharpGL
 						lst_vertices.Add(new Point(x1, y2)); // Dinh 4: (x1, y2)
 						break;
 					case ShapeMode.ELLIPSE:
-						OpenGL gl = openGLControl.OpenGL;
 
-						totalSegments = 45;
+						totalSegments = 60;
 
 						// Tinh lai toa doa p1, p2 do tinh diem cua tam giac so thuc hien phep quay
 						p1 = new Point(p1.X, gl.RenderContextProvider.Height - p1.Y);
@@ -1584,7 +1587,7 @@ namespace SharpGL
 							double alpha_rad = alpha * Math.PI / 180;
 							// Tinh x, y
 							pV = new Point(Round(xc + rx * Math.Cos(alpha_rad))
-								, gl.RenderContextProvider.Height - Round(yc + ry * Math.Sin(alpha_rad)));
+								, Round(yc + ry * Math.Sin(alpha_rad)));
 							// Them cac dinh cua obj vao
 							lst_vertices.Add(pV);
 						}
@@ -1592,8 +1595,8 @@ namespace SharpGL
 						break;
 					case ShapeMode.CIRCLE:
 						// Tinh lại tọa độ của pStart, pEnd dựa theo đỉnh của Circle
-						// Mỗi đỉnh hinh tron xoay 1 góc 8 độ
-						totalSegments = 45;
+						// Mỗi đỉnh hinh tron xo6y 1 góc 6 độ
+						totalSegments = 60;
 						flag = true;
 						break;
 					case ShapeMode.TRIANGLE:
@@ -1621,25 +1624,23 @@ namespace SharpGL
 
 				if (flag)
 				{
-					OpenGL gl = openGLControl.OpenGL;
-
-					// Tinh lai toa doa p1, pSymmetry do tinh diem cua tam giac so thuc hien phep quay
+					// Tinh lai toa doa p1, p2 do tinh diem cua tam giac so thuc hien phep quay
 					p1 = new Point(p1.X, gl.RenderContextProvider.Height - p1.Y);
 					p2 = new Point(p2.X, gl.RenderContextProvider.Height - p2.Y);
 
 					// Ban kinh la cung chinh la canh cua hinh vuong 
-					//do duong tron noi tiep hinh vuong co duong cheo di qua p1 va pSymmetry
+					//do duong tron noi tiep hinh vuong co duong cheo di qua p1 va p2
 					double r;
 					calculateDistance(p1, p2, out r);
 					r = r / (2 * Math.Sqrt(2));
 
-					// Tam duong tron tai trung diem cua doan thang noi pStart và pSymmetry
-					int xc = (p1.X + p2.X) / 2;
-					int yc = (p1.Y + p2.Y) / 2;
+					// Tam duong tron tai trung diem cua doan thang noi p1 và p2
+					int xc = Round((p1.X + p2.X) / 2);
+					int yc = Round((p1.Y + p2.Y) / 2);
 
 					// Gia su xet tai tam 0(0, 0)
 					int x = 0;
-					int y = (int)r;
+					int y = Round(r);
 
 					Point pV; // Cac dinh cua obj vao
 
@@ -1649,7 +1650,7 @@ namespace SharpGL
 						double alpha_rad = alpha * Math.PI / 180;
 						// Tinh x, y
 						pV = new Point(Round(xc + x * Math.Cos(alpha_rad) - y * Math.Sin(alpha_rad))
-							, gl.RenderContextProvider.Height - Round(yc + x * Math.Sin(alpha_rad) + y * Math.Cos(alpha_rad)));
+							, Round(yc + x * Math.Sin(alpha_rad) + y * Math.Cos(alpha_rad)));
 						// Them cac dinh cua obj vao
 						lst_vertices.Add(pV);
 					}
@@ -1658,7 +1659,8 @@ namespace SharpGL
 			}
 			else if (obj.type == ShapeMode.POLYGON)
 			{
-				lst_vertices.AddRange(obj.controlPoints);
+				foreach (var p in obj.controlPoints)
+					lst_vertices.Add(new Point(p.X, gl.RenderContextProvider.Height - p.Y));
 			}
 		}
 
@@ -1790,9 +1792,6 @@ namespace SharpGL
 						if (ymax == -1 || ymax < lst[j].Y)
 							ymax = lst[j].Y;
 					}
-
-
-
 
 				}
 				isInside(menuStart, xmin, xmax, ymin, ymax, out flag);
@@ -1950,8 +1949,15 @@ namespace SharpGL
 						{
 							List<Point> lst_vertices = new List<Point>();
 							findAllVerticesOfObject(obj, out lst_vertices);
-							//ET.storeEdges(lst_vertices);
+							// Chuyển đổi từ kiểu Point sang MyPoint
+							List<MyPoint> lst_mp_vertices = new List<MyPoint>();
+							foreach (var p in lst_vertices)
+							{
+								lst_mp_vertices.Add(new MyPoint(p.X, p.Y));
+							}
 
+							ET.storeEdges(lst_mp_vertices);
+							scanLineColorFill(gl, ET, colorUserColor);
 						}
 						break;
 				}
@@ -2418,7 +2424,8 @@ namespace SharpGL
 					// Cap nhat toa do diem dau
 					pStart = new Point(e.Location.X, e.Location.Y); // e la tham so lien quan den su kien chon diem
 					pEnd = new Point(e.X, e.Y); // Mac dinh pEnd = pStart
-
+					if (shShape == ShapeMode.SCAN_LINES) // De giup vo viec select 1 vung va scanline
+						menuStart = new Point(e.X, e.Y);
 				}
 				else // Neu la hinh da giac
 				{
