@@ -1213,6 +1213,28 @@ namespace SharpGL
 						floodFillScanLineStack(gl, p1.X, p1.Y, bm[i].colorUse, Color.Black);
 						break;
 					case ShapeMode.SCAN_LINES:
+						edgeTable ET = new edgeTable();
+						// Select de lay doi tuong nay
+						MyBitMap obj;
+						int index;
+						Point seed = new Point(bm[i].controlPoints[0].X, bm[i].controlPoints[0].Y);
+						selectOneObject(seed, out obj, out index);
+						// Kiem tra xem co null hay khong?
+						bool isNull = false;
+						obj.isNull(out isNull);
+						if (!isNull)
+						{
+							List<Point> lst_vertices = new List<Point>();
+							findAllVerticesOfObject(obj, out lst_vertices);
+							// Chuyển đổi từ kiểu Point sang MyPoint
+							List<MyPoint> lst_mp_vertices = new List<MyPoint>();
+							foreach (var p in lst_vertices)
+							{
+								lst_mp_vertices.Add(new MyPoint(p.X, p.Y));
+							}
+							ET.storeEdges(lst_mp_vertices);
+							scanLineColorFill(gl, ET, colorUserColor);
+						}
 
 						break;
 				}
@@ -1730,7 +1752,7 @@ namespace SharpGL
 
 		// Ham xu ly viec select 1 doi tuong
 		// Ket qua: Tra ve MyBitMap cua 1 doi tuong do va vi tri cua index trong bm
-		private void selectOneObject(out MyBitMap obj, out int index)
+		private void selectOneObject(Point seed, out MyBitMap obj, out int index)
 		{
 			obj = new MyBitMap(); // Khoi tao truoc doi tuong
 			index = -1;
@@ -1800,7 +1822,7 @@ namespace SharpGL
 					double d;
 					// Tinh khoang cach tu diem trung diem pStart, pEnd cua shape nay den menuStart
 					Point midpoint = new Point(Round((xmin + xmax) / 2.0), Round((ymin + ymax) / 2.0));
-					calculateDistance(menuStart, midpoint, out d);
+					calculateDistance(seed, midpoint, out d);
 					if (dmin == -1 || d < dmin)
 					{
 						dmin = d;
@@ -1835,7 +1857,7 @@ namespace SharpGL
 					// Select
 					MyBitMap obj;
 					int index;
-					selectOneObject(out obj, out index);
+					selectOneObject(menuStart, out obj, out index);
 					// Kiem tra xem co null hay khong?
 					bool isNull = false;
 					obj.isNull(out isNull);
@@ -1941,7 +1963,7 @@ namespace SharpGL
 						// Select de lay doi tuong nay
 						MyBitMap obj;
 						int index;
-						selectOneObject(out obj, out index);
+						selectOneObject(menuStart, out obj, out index);
 						// Kiem tra xem co null hay khong?
 						bool isNull = false;
 						obj.isNull(out isNull);
@@ -1955,7 +1977,6 @@ namespace SharpGL
 							{
 								lst_mp_vertices.Add(new MyPoint(p.X, p.Y));
 							}
-
 							ET.storeEdges(lst_mp_vertices);
 							scanLineColorFill(gl, ET, colorUserColor);
 						}
