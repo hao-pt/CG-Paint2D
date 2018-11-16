@@ -59,6 +59,16 @@ namespace SharpGL
 			type = _type;
 			brushSize = size;
 		}
+		// Phuong thuc khoi tao cho struct MyBitMap co 4 tham so
+		public MyBitMap(List<Point> lst, Color _color, ShapeMode _type, int size)
+		{
+			controlPoints = new List<Point>(); // Khoi tao list
+			controlPoints.AddRange(lst);
+											   // Gan cac thong so can thiet
+			colorUse = _color;
+			type = _type;
+			brushSize = size;
+		}
 		// Phuong thuc khoi tao cho struct MyBitMap co truyen 1 bien MyBitMap
 		public MyBitMap(MyBitMap other)
 		{
@@ -76,6 +86,7 @@ namespace SharpGL
 			else
 				flag = false;
 		}
+		
 	}
 
 	public partial class Form_Paint : Form
@@ -102,7 +113,9 @@ namespace SharpGL
 
 		List<MyBitMap> bm = new List<MyBitMap>(); // Dung de luu tru cac doi tuong da ve
 		bool isRigtClick = false;
-
+		bool isChangedColor = false; // Ho tro select. Neu nguoi dung thay doi size net ve, mau
+									 // thi se cap nhat lai hinh
+		bool isChangedSize = false; // Ho tro select
 		public Form_Paint()
 		{
 			InitializeComponent();
@@ -142,6 +155,9 @@ namespace SharpGL
 					bt_Right_Color.BackColor = colorDialog1.Color;
 
 				colorUserColor = colorDialog1.Color; // Luu lai mau user chon
+				if (chooseItem == SharpGL.Menu.SELECT) { // Neu nguoc dung dang select ma thay doi mau
+					isChangedColor = true;
+				}
 			}
 		}
 
@@ -161,6 +177,7 @@ namespace SharpGL
 			chooseItem = SharpGL.Menu.DRAWING;
 
 			shShape = ShapeMode.LINE; // Nguoi dung chon ve duong thang
+			isDown = 0;
 		}
 
 		// Nguoi dung chon chuc nang ve hinh chu nhat
@@ -176,6 +193,8 @@ namespace SharpGL
 			chkLstBox_Options.SetItemChecked(0, true);
 			chooseItem = SharpGL.Menu.DRAWING;
 			shShape = ShapeMode.RECTANGLE;
+			isDown = 0;
+
 		}
 
 		// Nguoi dung chon chuc nang ve tam giac deu
@@ -190,6 +209,8 @@ namespace SharpGL
 			chkLstBox_Options.SetItemChecked(0, true);
 			chooseItem = SharpGL.Menu.DRAWING;
 			shShape = ShapeMode.TRIANGLE;
+			isDown = 0;
+
 		}
 		// Bat su kien nguoi dung ve ngu giac deu
 		private void bt_Pentagon_Click(object sender, EventArgs e)
@@ -203,6 +224,7 @@ namespace SharpGL
 			chkLstBox_Options.SetItemChecked(0, true);
 			chooseItem = SharpGL.Menu.DRAWING;
 			shShape = ShapeMode.PENTAGON;
+			isDown = 0;
 		}
 
 		// Bat su kien nguoi dung ve luc giac deu
@@ -217,6 +239,7 @@ namespace SharpGL
 			chkLstBox_Options.SetItemChecked(0, true);
 			chooseItem = SharpGL.Menu.DRAWING;
 			shShape = ShapeMode.HEXAGON;
+			isDown = 0;
 		}
 
 		// Bat su kien nguoi dung ve duong tron
@@ -231,6 +254,7 @@ namespace SharpGL
 			chkLstBox_Options.SetItemChecked(0, true);
 			chooseItem = SharpGL.Menu.DRAWING;
 			shShape = ShapeMode.CIRCLE;
+			isDown = 0;
 		}
 
 		// Bat su kien nguoi dung ve ellipse
@@ -246,6 +270,22 @@ namespace SharpGL
 			chkLstBox_Options.SetItemChecked(0, true);
 			chooseItem = SharpGL.Menu.DRAWING;
 			shShape = ShapeMode.ELLIPSE;
+			isDown = 0;
+		}
+
+		// Bat su kien ve Polygon
+		private void bt_Polygon_Click(object sender, EventArgs e)
+		{
+			// Unchecked các menu còn lại
+			for (int i = 0; i < 4; i++)
+			{
+				chkLstBox_Options.SetItemChecked(i, false);
+			}
+			// Check menu Drawing
+			chkLstBox_Options.SetItemChecked(0, true);
+			chooseItem = SharpGL.Menu.DRAWING;
+			shShape = ShapeMode.POLYGON;
+			isDown = 0;
 		}
 
 		// Ham khoi tao cho opengl
@@ -1526,10 +1566,11 @@ namespace SharpGL
 		}
 
 		// Ham xu ly viec select 1 doi tuong
-		// Ket qua: Tra ve MyBitMap cua 1 doi tuong do
-		private void selectOneObject(out MyBitMap obj)
+		// Ket qua: Tra ve MyBitMap cua 1 doi tuong do va vi tri cua index trong bm
+		private void selectOneObject(out MyBitMap obj, out int index)
 		{
 			obj = new MyBitMap(); // Khoi tao truoc doi tuong
+			index = -1;
 			double dmin = -1;
 			int imin = -1; // Ban dau mac dinh chi so la -1
 			int h = openGLControl.OpenGL.RenderContextProvider.Height; // Lay chieu cao cua cua so
@@ -1611,11 +1652,14 @@ namespace SharpGL
 			if (imin != -1)
 			{
 				obj = new MyBitMap(bm[imin]);
+				index = imin;
 			}
 		}
 
 		private void openGLControl_OpenGLDraw(object sender, RenderEventArgs args)
 		{
+			
+
 			if (isDown == 1) // Neu nguoi dung dang Mouse down thi moi ve
 			{
 				// get the OpenGL object
@@ -1630,13 +1674,35 @@ namespace SharpGL
 				if (chooseItem == SharpGL.Menu.SELECT)
 				{ // Select
 					MyBitMap obj;
-					selectOneObject(out obj);
+					int index;
+					selectOneObject(out obj, out index);
 					// Kiem tra xem co null hay khong?
 					bool isNull = false;
 					obj.isNull(out isNull);
 					if (!isNull)
 					{
 						drawControlPoints(obj.controlPoints, obj.type); // Ve cac control point cua hinh do
+						if (isChangedSize || isChangedColor)
+						{
+							bm.RemoveAt(index); // Xoa khoi list
+							if (isChangedColor && isChangedSize) // Neu thay doi mau va size
+							{ // Neu nguoi dung thay doi mau ve
+							  // Cap nhat lai mau ve vao MyBitMap
+								bm.Add(new MyBitMap(obj.controlPoints, colorUserColor, obj.type, currentSize));
+								isChangedColor = false;
+								isChangedSize = false;
+							}
+							else if (isChangedSize)
+							{   // Cap nhat size
+								bm.Add(new MyBitMap(obj.controlPoints, obj.colorUse, obj.type, currentSize));
+								isChangedSize = false;
+							}
+							else if (isChangedColor) {
+								bm.Add(new MyBitMap(obj.controlPoints, colorUserColor, obj.type, obj.brushSize));
+								isChangedColor = false;
+							}
+						}
+
 					}
 				}
 
@@ -1964,9 +2030,12 @@ namespace SharpGL
 			// Nếu chọn menu Drawing
 			if (chooseItem != SharpGL.Menu.DRAWING)
 			{
-				// Cập nhật lại điểm menuEnd
-				menuEnd = new Point(e.X, e.Y);
-				isDown = 0;
+				if (chooseItem != SharpGL.Menu.SELECT)
+				{
+					// Cập nhật lại điểm menuEnd
+					menuEnd = new Point(e.X, e.Y);
+					isDown = 0;
+				}
 			}
 			else
 			{
@@ -2006,16 +2075,14 @@ namespace SharpGL
 		private void cBox_Choose_Size_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			currentSize = int.Parse(cBox_Choose_Size.Text);
+			if(chooseItem == SharpGL.Menu.SELECT) { // Neu nguoc dung dang select ma thay doi size
+				isChangedSize = true;
+			}
 		}
 
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Application.Exit(); // Tắt chuong trinh
-		}
-
-		private void bt_Polygon_Click(object sender, EventArgs e)
-		{
-			shShape = ShapeMode.POLYGON;
 		}
 
 		// Xu ly su kien nguoi dung click chuot
