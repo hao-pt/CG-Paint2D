@@ -79,6 +79,10 @@ namespace SharpGL
 
 	public partial class Form_Paint : Form
 	{
+        // Bien chi vi tri object duoc chon
+        int indexObject = -1;
+        // Bien kiem tra da chon object chua
+        bool selected = false;
 		// Tọa độ điểm di chuyển sau khi chọn menu de thuc hien phep translate, rotate & scale
 		Point menuStart, menuEnd;
 
@@ -1092,7 +1096,77 @@ namespace SharpGL
 			isPushMatrix = true;
 		}
 
-		private void repaint(OpenGL gl)
+        // Ham scale
+        private void scale(OpenGL gl)
+        {
+            gl.PushMatrix();
+            Point mid = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
+            // Tinh xScale,yScale
+            double dis1;
+            double dis2;
+            calculateDistance(menuStart, mid, out dis1);
+            calculateDistance(menuEnd, mid, out dis2);
+            // Ti le scale
+            int scaleNumber = (int)(dis2 / dis1);
+            gl.Translate(mid.X, mid.Y, 0);
+            gl.Scale(scaleNumber,scaleNumber,0);
+            gl.Translate(-mid.X, -mid.Y, 0);
+            isPushMatrix = true;
+        }
+
+        // Ham rotate
+        private void rotate(OpenGL gl)
+        {
+            Point CenterRotate = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
+            double rotateAngle = 0;
+            int height = gl.RenderContextProvider.Height;
+
+            // Tọa độ 2 vector
+            int[] vector1 = { 0, 1 };
+            int[] vector2 = { menuEnd.X - CenterRotate.X, -menuEnd.Y + CenterRotate.Y };
+
+            int k1 = 1, k2 = 0;
+            //if(vector2[0] != 0 && vector2[1] != 0)
+            //{
+            //    // Xét trường hợp 2 vector cùng hướng
+            //    k1 = vector1[0] / vector2[0];
+            //    k2 = vector1[1] / vector2[1];
+            //}
+
+            if (k1 == k2)
+            {
+                rotateAngle = 0;
+            }
+            else if (k1 == -k2)
+            {
+                rotateAngle = 180;
+            }
+            else
+            {
+                // Độ dài của 2 vector
+                double length_vector1 = Math.Sqrt(Math.Pow(vector1[0], 2) + Math.Pow(vector1[1], 2));
+                double length_vector2 = Math.Sqrt(Math.Pow(vector2[0], 2) + Math.Pow(vector2[1], 2));
+
+                // Xác định tử và mẫu
+                int Tu = vector1[0] * vector2[0] + vector1[1] * vector2[1];
+                double Mau = length_vector1 * length_vector2;
+                rotateAngle = Math.Acos(Tu / Mau) * 180 / Math.PI;
+                if (menuEnd.X > CenterRotate.X)
+                    rotateAngle = -rotateAngle;
+            }
+
+
+            gl.PushMatrix();
+            gl.Translate(CenterRotate.X, gl.RenderContextProvider.Height - CenterRotate.Y, 0f);
+            gl.Rotate(rotateAngle, 0, 0, 1);
+            //gl.Rotate((float)30, 0, 0, 1);
+            gl.Translate(-CenterRotate.X, CenterRotate.Y - gl.RenderContextProvider.Height, 0f);
+            isPushMatrix = true;
+
+        }
+
+
+        private void repaint(OpenGL gl)
 		{
 			for (int i = 0; i < bm.Count; i++)
 			{
@@ -1532,6 +1606,7 @@ namespace SharpGL
 
 			if (imin != -1)
 			{
+                indexObject = imin;
 				obj = new MyBitMap(bm[imin]);
 			}
 		}
@@ -1566,16 +1641,74 @@ namespace SharpGL
 				// Do đó cần push ma trận model view vào stack
 				if (chooseItem == SharpGL.Menu.TRANSLATE) // Dich chuyen
 				{
-					translate(gl);
+                    if (selected == false)
+                    {
+                        MyBitMap obj;
+                        selectOneObject(out obj);
+                        // Kiem tra xem co null hay khong?
+                        bool isNull = false;
+                        obj.isNull(out isNull);
+                        if (!isNull)
+                        {
+                            drawControlPoints(obj.controlPoints[0], obj.controlPoints[1], obj.type);
+                            shShape = obj.type;
+                            colorUserColor = obj.colorUse;
+                            currentSize = obj.brushSize;
+                            pStart = obj.controlPoints[0];
+                            pEnd = obj.controlPoints[1];
+                            bm.RemoveAt(indexObject);
+                            selected = true;                            
+                        }                       
+                    }
+                    
+                    translate(gl);
 				}
 				else if (chooseItem == SharpGL.Menu.ROTATE) // Xoay
 				{
-
-				}
+                    if (selected == false)
+                    {
+                        MyBitMap obj;
+                        selectOneObject(out obj);
+                        // Kiem tra xem co null hay khong?
+                        bool isNull = false;
+                        obj.isNull(out isNull);
+                        if (!isNull)
+                        {
+                            drawControlPoints(obj.controlPoints[0], obj.controlPoints[1], obj.type);
+                            shShape = obj.type;
+                            colorUserColor = obj.colorUse;
+                            currentSize = obj.brushSize;
+                            pStart = obj.controlPoints[0];
+                            pEnd = obj.controlPoints[1];
+                            bm.RemoveAt(indexObject);
+                            selected = true;
+                        }
+                    }
+                    rotate(gl);
+                }
 				else if (chooseItem == SharpGL.Menu.SCALE) // Scale/Zoom
 				{
-
-				}
+                    if (selected == false)
+                    {
+                        MyBitMap obj;
+                        selectOneObject(out obj);
+                        // Kiem tra xem co null hay khong?
+                        bool isNull = false;
+                        obj.isNull(out isNull);
+                        if (!isNull)
+                        {
+                            drawControlPoints(obj.controlPoints[0], obj.controlPoints[1], obj.type);
+                            shShape = obj.type;
+                            colorUserColor = obj.colorUse;
+                            currentSize = obj.brushSize;
+                            pStart = obj.controlPoints[0];
+                            pEnd = obj.controlPoints[1];
+                            bm.RemoveAt(indexObject);
+                            selected = true;
+                        }
+                    }
+                    scale(gl);
+                }
 				else if(chooseItem == SharpGL.Menu.SELECT){ // Select
 					MyBitMap obj;
 					selectOneObject(out obj);
@@ -1869,10 +2002,74 @@ namespace SharpGL
 			// Nếu chọn menu Drawing
 			if (chooseItem != SharpGL.Menu.DRAWING)
 			{
+                // Co the select lai 1 object khac
+                selected = false;
 				// Cập nhật lại điểm menuEnd
 				menuEnd = new Point(e.X, e.Y);
 				isDown = 0;
-			}
+                if (chooseItem == SharpGL.Menu.TRANSLATE)
+                {
+                    // Tinh khoang doi trx va try
+                    int xTrans = menuEnd.X - menuStart.X;
+                    int yTrans = menuEnd.Y - menuStart.Y;
+                    pStart = new Point(pStart.X + xTrans, pStart.Y + yTrans);
+                    pEnd = new Point(pEnd.X + xTrans, pEnd.Y + yTrans);
+
+                    // Khi nguoi dung vua ve xong hinh thi ve control points
+                    drawControlPoints(pStart, pEnd, shShape);
+
+                    // Thuc hien lui doi tuong da ve vao List<MyBitMap> bm
+                    MyBitMap tmp = new MyBitMap(colorUserColor, shShape, currentSize);
+                    tmp.controlPoints.Add(pStart);
+                    tmp.controlPoints.Add(pEnd);
+                    // Them tmp vao bm
+                    bm.Add(tmp);
+                }
+                else if (chooseItem == SharpGL.Menu.SCALE)
+                {
+                    Point mid = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
+                    // Tinh xScale,yScale
+                    double dis1;
+                    double dis2;
+                    calculateDistance(menuStart, mid, out dis1);
+                    calculateDistance(menuEnd, mid, out dis2);
+                    // Ti le scale
+                    int scaleNumber = (int)(dis2 / dis1);
+                    pStart = new Point(pStart.X * scaleNumber, pStart.Y * scaleNumber);
+                    pEnd = new Point(pEnd.X * scaleNumber, pEnd.Y * scaleNumber);
+                    // Khi nguoi dung vua ve xong hinh thi ve control points
+                    drawControlPoints(pStart, pEnd, shShape);
+
+                    // Thuc hien lui doi tuong da ve vao List<MyBitMap> bm
+                    MyBitMap tmp = new MyBitMap(colorUserColor, shShape, currentSize);
+                    tmp.controlPoints.Add(pStart);
+                    tmp.controlPoints.Add(pEnd);
+                    // Them tmp vao bm
+                    bm.Add(tmp);
+                }
+                else if (chooseItem == SharpGL.Menu.ROTATE)
+                {
+                    //Point mid = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
+                    //// Tinh xScale,yScale
+                    //double dis1;
+                    //double dis2;
+                    //calculateDistance(menuStart, mid, out dis1);
+                    //calculateDistance(menuEnd, mid, out dis2);
+                    //// Ti le scale
+                    //int scaleNumber = (int)(dis2 / dis1);
+                    //pStart = new Point(pStart.X * scaleNumber, pStart.Y * scaleNumber);
+                    //pEnd = new Point(pEnd.X * scaleNumber, pEnd.Y * scaleNumber);
+                    //// Khi nguoi dung vua ve xong hinh thi ve control points
+                    //drawControlPoints(pStart, pEnd, shShape);
+
+                    //// Thuc hien lui doi tuong da ve vao List<MyBitMap> bm
+                    //MyBitMap tmp = new MyBitMap(colorUserColor, shShape, currentSize);
+                    //tmp.controlPoints.Add(pStart);
+                    //tmp.controlPoints.Add(pEnd);
+                    //// Them tmp vao bm
+                    //bm.Add(tmp);
+                }
+            }
 			else
 			{
 				// Neu nguoi dung khong ve da giac thi ket thuc viec ve hinh
