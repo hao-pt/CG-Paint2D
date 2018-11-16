@@ -2108,12 +2108,12 @@ namespace SharpGL
 				while (x1 >= 0 && (color.A == old_color.A &&
 					color.R == old_color.R && color.G == old_color.G && color.B == old_color.B))
 				{
-					x1 -= 2;
+					x1 -= 1;
 					getPixelColor(gl, x1, y, out pixel);
 					color = new Color();
 					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
 				}
-				x1 += 2;
+				x1 += 1;
 
 				// Danh dau la chua check spanAbove va spanBelow
 				spanAbove = spanBelow = false;
@@ -2130,14 +2130,14 @@ namespace SharpGL
 					// Put pixel x1, y cho scanline hien tai
 					setPixelColor(gl, x1, y, fill_color);
 
-					getPixelColor(gl, x1, y - 2, out pixel);
+					getPixelColor(gl, x1, y - 1, out pixel);
 					color = new Color();
 					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
 					// Kiem tra scanline above va gieo hat giong
 					if (!spanAbove && gl.RenderContextProvider.Height - y > 0 && (color.A == old_color.A &&
 					color.R == old_color.R && color.G == old_color.G && color.B == old_color.B))
 					{
-						s.Push(new Point(x1, y - 2));
+						s.Push(new Point(x1, y - 1));
 						spanAbove = true; // Danh dau la da push no vao stack
 					}
 					else if (spanAbove && gl.RenderContextProvider.Height - y > 0 && (color.A != old_color.A ||
@@ -2163,7 +2163,7 @@ namespace SharpGL
 					{
 						spanBelow = false;
 					}
-					x1 += 2;
+					x1 += 1;
 					getPixelColor(gl, x1, y, out pixel);
 					color = new Color();
 					color = Color.FromArgb(pixel[3], pixel[0], pixel[1], pixel[2]);
