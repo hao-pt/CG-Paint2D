@@ -1108,9 +1108,7 @@ namespace SharpGL
             calculateDistance(menuEnd, mid, out dis2);
             // Ti le scale
             int scaleNumber = (int)(dis2 / dis1);
-            gl.Translate(mid.X, mid.Y, 0);
-            gl.Scale(scaleNumber,scaleNumber,0);
-            gl.Translate(-mid.X, -mid.Y, 0);
+            gl.Scale(scaleNumber,0,0);
             isPushMatrix = true;
         }
 
@@ -1125,35 +1123,17 @@ namespace SharpGL
             int[] vector1 = { 0, 1 };
             int[] vector2 = { menuEnd.X - CenterRotate.X, -menuEnd.Y + CenterRotate.Y };
 
-            int k1 = 1, k2 = 0;
-            //if(vector2[0] != 0 && vector2[1] != 0)
-            //{
-            //    // Xét trường hợp 2 vector cùng hướng
-            //    k1 = vector1[0] / vector2[0];
-            //    k2 = vector1[1] / vector2[1];
-            //}
+            // Độ dài của 2 vector
+            double length_vector1 = Math.Sqrt(Math.Pow(vector1[0], 2) + Math.Pow(vector1[1], 2));
+            double length_vector2 = Math.Sqrt(Math.Pow(vector2[0], 2) + Math.Pow(vector2[1], 2));
 
-            if (k1 == k2)
-            {
-                rotateAngle = 0;
-            }
-            else if (k1 == -k2)
-            {
-                rotateAngle = 180;
-            }
-            else
-            {
-                // Độ dài của 2 vector
-                double length_vector1 = Math.Sqrt(Math.Pow(vector1[0], 2) + Math.Pow(vector1[1], 2));
-                double length_vector2 = Math.Sqrt(Math.Pow(vector2[0], 2) + Math.Pow(vector2[1], 2));
-
-                // Xác định tử và mẫu
-                int Tu = vector1[0] * vector2[0] + vector1[1] * vector2[1];
-                double Mau = length_vector1 * length_vector2;
-                rotateAngle = Math.Acos(Tu / Mau) * 180 / Math.PI;
-                if (menuEnd.X > CenterRotate.X)
-                    rotateAngle = -rotateAngle;
-            }
+            // Xác định tử và mẫu
+            int Tu = vector1[0] * vector2[0] + vector1[1] * vector2[1];
+            double Mau = length_vector1 * length_vector2;
+            rotateAngle = Math.Acos(Tu / Mau) * 180 / Math.PI;
+            if (menuEnd.X > CenterRotate.X)
+                rotateAngle = -rotateAngle;
+            
 
 
             gl.PushMatrix();
@@ -1703,7 +1683,7 @@ namespace SharpGL
                             currentSize = obj.brushSize;
                             pStart = obj.controlPoints[0];
                             pEnd = obj.controlPoints[1];
-                            bm.RemoveAt(indexObject);
+                            bm.RemoveAt(indexObject); 
                             selected = true;
                         }
                     }
@@ -2035,8 +2015,10 @@ namespace SharpGL
                     calculateDistance(menuEnd, mid, out dis2);
                     // Ti le scale
                     int scaleNumber = (int)(dis2 / dis1);
-                    pStart = new Point(pStart.X * scaleNumber, pStart.Y * scaleNumber);
-                    pEnd = new Point(pEnd.X * scaleNumber, pEnd.Y * scaleNumber);
+                    //pStart = new Point(pStart.X * scaleNumber, pStart.Y * scaleNumber);
+                    //pEnd = new Point(pEnd.X * scaleNumber, pEnd.Y * scaleNumber);
+                    pStart = new Point(pStart.X, pStart.Y );
+                    pEnd = new Point(pEnd.X * scaleNumber, pEnd.Y);
                     // Khi nguoi dung vua ve xong hinh thi ve control points
                     drawControlPoints(pStart, pEnd, shShape);
 
@@ -2049,25 +2031,48 @@ namespace SharpGL
                 }
                 else if (chooseItem == SharpGL.Menu.ROTATE)
                 {
-                    //Point mid = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
-                    //// Tinh xScale,yScale
-                    //double dis1;
-                    //double dis2;
-                    //calculateDistance(menuStart, mid, out dis1);
-                    //calculateDistance(menuEnd, mid, out dis2);
-                    //// Ti le scale
-                    //int scaleNumber = (int)(dis2 / dis1);
-                    //pStart = new Point(pStart.X * scaleNumber, pStart.Y * scaleNumber);
-                    //pEnd = new Point(pEnd.X * scaleNumber, pEnd.Y * scaleNumber);
-                    //// Khi nguoi dung vua ve xong hinh thi ve control points
-                    //drawControlPoints(pStart, pEnd, shShape);
+                    Point CenterRotate = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
+                    double rotateAngle = 0;
+                    
 
-                    //// Thuc hien lui doi tuong da ve vao List<MyBitMap> bm
-                    //MyBitMap tmp = new MyBitMap(colorUserColor, shShape, currentSize);
-                    //tmp.controlPoints.Add(pStart);
-                    //tmp.controlPoints.Add(pEnd);
-                    //// Them tmp vao bm
-                    //bm.Add(tmp);
+                    // Tọa độ 2 vector
+                    int[] vector1 = { 0, 1 };
+                    int[] vector2 = { menuEnd.X - CenterRotate.X, -menuEnd.Y + CenterRotate.Y };
+
+                    // Độ dài của 2 vector
+                    double length_vector1 = Math.Sqrt(Math.Pow(vector1[0], 2) + Math.Pow(vector1[1], 2));
+                    double length_vector2 = Math.Sqrt(Math.Pow(vector2[0], 2) + Math.Pow(vector2[1], 2));
+
+                    // Xác định tử và mẫu
+                    int Tu = vector1[0] * vector2[0] + vector1[1] * vector2[1];
+                    double Mau = length_vector1 * length_vector2;
+                    rotateAngle = Math.Acos(Tu / Mau) * 180 / Math.PI;
+
+                    //if (menuEnd.X > CenterRotate.X)
+                    //    rotateAngle = -rotateAngle;
+                    if (menuEnd.X < CenterRotate.X)
+                        rotateAngle += 90;
+
+                    Point temp = pStart;
+                   
+                    double r = rotateAngle * Math.PI / 180;
+                    // Toa do sau khi xoay cua pStart va pEnd
+                    int pSRx = (int)(Math.Cos(r) * pStart.X - Math.Sin(r) * pStart.Y);
+                    int pSRy = (int)(Math.Cos(r) * pStart.Y + Math.Sin(r) * pStart.X);
+                    int pERx = (int)(Math.Cos(r) * pEnd.X - Math.Sin(r) * pEnd.Y);
+                    int pERy = (int)(Math.Cos(r) * pEnd.X + Math.Sin(r) * pEnd.Y);
+                
+                    pStart = new Point(pSRx, pSRy);
+                    pEnd = new Point(pERx, pERy);
+                    // Khi nguoi dung vua ve xong hinh thi ve control points
+                    drawControlPoints(pStart, pEnd, shShape);
+
+                    // Thuc hien lui doi tuong da ve vao List<MyBitMap> bm
+                    MyBitMap tmp = new MyBitMap(colorUserColor, shShape, currentSize);
+                    tmp.controlPoints.Add(pStart);
+                    tmp.controlPoints.Add(pEnd);
+                    // Them tmp vao bm
+                    bm.Add(tmp);
                 }
             }
 			else
