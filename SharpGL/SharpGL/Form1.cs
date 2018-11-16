@@ -7,13 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-<<<<<<< HEAD
-using System.Diagnostics; 
-=======
 using System.Diagnostics;
 using System.Runtime.InteropServices; // Su dung ham chuyen doi sang IntPtr
->>>>>>> 71a476bc8657ad649422e309d7775ee14140f737
-
 namespace SharpGL
 {
 	// Kieu enum cho nut chon mau
@@ -1492,7 +1487,15 @@ namespace SharpGL
 				// Do đó cần push ma trận model view vào stack
 				if (chooseItem == SharpGL.Menu.TRANSLATE) // Dich chuyen
 				{
+
 					translate(gl);
+                    // Xóa màn hình
+                    gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
+
+                    // Chon mau
+                    gl.Color(colorUserColor.R / 255.0, colorUserColor.G / 255.0, colorUserColor.B / 255.0, 0);
+                    // Thiet lap size cua net ve
+                    gl.LineWidth(currentSize);
                     drawLine(gl, menuPoint1, menuPoint2);
 				}
 				else if (chooseItem == SharpGL.Menu.ROTATE) // Xoay
@@ -1503,17 +1506,16 @@ namespace SharpGL
 				{
 
 				}
-
-<<<<<<< HEAD
-                // Ve voi cho nay
-                // ...
-                if (chooseItem == SharpGL.Menu.DRAWING)
+                else if(chooseItem==SharpGL.Menu.DRAWING)
                 {
+                    // Ve voi cho nay
+                    // ...
                     switch (shShape)
                     {
                         case ShapeMode.LINE:
                             // Ve doan thang
                             drawLine(gl);
+                            //Shape.Line.draw(gl);
                             break;
                         case ShapeMode.CIRCLE:
                             // Ve duong tron
@@ -1545,54 +1547,11 @@ namespace SharpGL
                             break;
                         case ShapeMode.FLOOD_FILL:
                             // To mau bang thuat toan flood fill
-                            floodFill(pStart.X, pStart.Y);
+                            //floodFill(gl, pStart.X, pStart.Y, colorUserColor, Color.Black);
+                            floodFillScanLineStack(gl, pStart.X, pStart.Y, colorUserColor, Color.Black);
                             break;
                     }
                 }
-=======
-				// Ve voi cho nay
-				// ...
-				switch (shShape)
-				{
-					case ShapeMode.LINE:
-						// Ve doan thang
-						drawLine(gl);
-						break;
-					case ShapeMode.CIRCLE:
-						// Ve duong tron
-						drawCircle(gl);
-						break;
-					case ShapeMode.RECTANGLE:
-						// Ve hinh chu nhat
-						drawRec(gl);
-						break;
-					case ShapeMode.ELLIPSE:
-						// Ve ellipse
-						drawEllipse(gl);
-						break;
-					case ShapeMode.TRIANGLE:
-						// Ve tam giac deu
-						drawTriangle(gl);
-						break;
-					case ShapeMode.PENTAGON:
-						// Ve ngu giac deu
-						drawPentagon(gl);
-						break;
-					case ShapeMode.HEXAGON:
-						// Ve luc giac deu
-						drawHexagon(gl);
-						break;
-					case ShapeMode.POLYGON:
-						// Ve da giac
-						drawPolygon(gl);
-						break;
-					case ShapeMode.FLOOD_FILL:
-						// To mau bang thuat toan flood fill
-						//floodFill(gl, pStart.X, pStart.Y, colorUserColor, Color.Black);
-						floodFillScanLineStack(gl, pStart.X, pStart.Y, colorUserColor, Color.Black);
-						break;
-				}
->>>>>>> 71a476bc8657ad649422e309d7775ee14140f737
 
 				myTimer.Stop(); // ket thuc do
 				TimeSpan Time = myTimer.Elapsed; // Lay thoi gian troi qua
@@ -1966,26 +1925,34 @@ namespace SharpGL
 			{
 				// Cap nhat toa do cho viec thuc hien cac phep transform
 				menuStart = menuEnd = new Point(e.X, e.Y);
-
-                // Kiểm tra xem vị trí click là của đối tượng nào
-                for(int i = bm.Count - 1; i >= 0; i--)
+                double dis = 0;
+                while (dis == 0)
                 {
-                    double dis = 0;
-                    for(int j = 0; j < bm[i].controlPoints.Count; j++)
+                    // Kiểm tra xem vị trí click là của đối tượng nào
+                    for (int i = bm.Count - 1; i >= 0; i--)
                     {
-                        calculateDistance(e.Location, bm[i].controlPoints[j], out dis);
-                        if (dis <= 100)
+                        
+                        for (int j = 0; j < bm[i].controlPoints.Count; j++)
                         {
-                            shShape = bm[i].type;
-                            currentSize = bm[i].brushSize;
-                            colorUserColor = bm[i].colorUse;
-                            menuStart = menuEnd = e.Location;
-                            menuPoint1 = bm[i].controlPoints[0];
-                            menuPoint2 = bm[i].controlPoints[1];
-                            return;
+                            calculateDistance(e.Location, bm[i].controlPoints[j], out dis);
+                            if (dis <= 100)
+                            {
+                                shShape = bm[i].type;
+                                currentSize = bm[i].brushSize;
+                                colorUserColor = bm[i].colorUse;
+                                menuStart = menuEnd = e.Location;
+                                menuPoint1 = bm[i].controlPoints[0];
+                                menuPoint2 = bm[i].controlPoints[1];
+                                break;
+                            }
+                        }
+                        if (dis != 0)
+                        {
+                            break;
                         }
                     }
                 }
+                
 			}
 
 
