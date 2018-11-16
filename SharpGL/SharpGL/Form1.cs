@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Collections;
 using System.Runtime.InteropServices; // Su dung ham chuyen doi sang IntPtr
 
 namespace SharpGL
@@ -77,8 +78,18 @@ namespace SharpGL
 				flag = false;
 		}
 	}
+    public struct MyPoint// toa do diem luu theo kieu float
+    {
+        public float X;
+        public float Y;
+        public MyPoint(float _x, float _y)
+        {
+            X = _x;
+            Y = _y;
+        }
+    }
 
-	public partial class Form_Paint : Form
+    public partial class Form_Paint : Form
 	{
 		// Tọa độ điểm di chuyển sau khi chọn menu de thuc hien phep translate, rotate & scale
 		Point menuStart, menuEnd;
@@ -1910,9 +1921,68 @@ namespace SharpGL
 				}
 			}
 		}
+        // ===========================================SCANLINE===========================================
+        void scanLineColorFill(OpenGL gl, edgeTable eTable, Color chosenColor) // using scan lines to fill color
+        {
+            Hashtable ht = new Hashtable();
+            ht = eTable.getEdgeTable();
+            LinkedList<edgeNode> begList = new LinkedList<edgeNode>();
+            //gl.Enable(OpenGL.GL_LINE_SMOOTH);
+            int start = eTable.getMinKey(), end = eTable.getMaxKey();
 
-		// Ham xu ly su kien to mau theo vet loang
-		private void bt_Flood_Fill_Click(object sender, EventArgs e)
+            for (int y = start; y <= end; y++)
+            {
+                // STEP 1: Adding edges to begList
+                if (ht.ContainsKey(y))
+                {
+                    foreach (edgeNode e in (LinkedList<edgeNode>)ht[y])
+                    {
+                        begList.AddLast(e);
+                    }
+                }
+                // STEP 2: Sorting edges according to xIntersect
+                var sortedBegList = ((LinkedList<edgeNode>)begList).OrderBy(edgeNode => edgeNode.getXIntersect());
+
+                // STEP 3: Drawing Line
+                var node1 = begList.First;
+                while (node1 != null) // when not having come to tail
+                {
+                    var nextNode = node1.Next;
+                    var nextNextNode = nextNode.Next;
+                    Point p1 = new Point((int)node1.Value.getXIntersect(), y);
+                    Point p2 = new Point((int)nextNode.Value.getXIntersect(), y);
+                    //gl.Color(colorUserColor.R / 255.0, colorUserColor.G / 255.0, colorUserColor.B / 255.0, 0);
+                    gl.Color(chosenColor.R / 255.0, chosenColor.G / 255.0, chosenColor.B / 255.0, 0);
+                    gl.Begin(OpenGL.GL_LINES);
+                    gl.Vertex(p1.X, p1.Y);
+                    gl.Vertex(p2.X + 2, p2.Y);
+                    gl.End();
+                    node1 = nextNextNode;
+                }
+
+                // STEP 4: Delete edge having yUpper = y
+                var node = begList.First; // first element of begList
+                while (node != null)
+                {
+                    var nextNode = node.Next;
+                    if (node.Value.getYUpper() == y)
+                        begList.Remove(node);// remove nodes having yUpper = y
+                    node = nextNode;
+                }
+
+                // STEP 5: Update xIntersect
+                foreach (edgeNode e in begList)
+                {
+                    e.updateXIntersect();
+                }
+            }
+            gl.Flush();
+            //gl.Disable(OpenGL.GL_LINE_SMOOTH);
+        }
+
+
+        // Ham xu ly su kien to mau theo vet loang
+        private void bt_Flood_Fill_Click(object sender, EventArgs e)
 		{
 			shShape = ShapeMode.FLOOD_FILL;
 		}
@@ -2123,4 +2193,146 @@ namespace SharpGL
 		}
 
 	}
+    // Kieu edgeNode de luu cac thong tin cua mot canh (dung de luu vao bang edgeTable cho to mau Scanline)
+    class edgeNode
+    {
+        int yUpper;
+        float xIntersect;
+        float slopeInverse;
+
+        public int getYUpper()// Lay y_upper
+        {
+            return yUpper;
+        }
+        public float getXIntersect() // Lay x_intersect
+        {
+            return xIntersect;
+        }
+        public float getSlopeInverse() // Lay nghich dao do doc
+        {
+            return slopeInverse;
+        }
+        public void updateXIntersect() // cap nhat lai gia tri cua xIntersect sau khi draw xong mot scan line
+        {
+            xIntersect += slopeInverse;
+        }
+        public edgeNode(int _yUpper, float _xIntersect, float _slopeInverse) // constructor
+        {
+            yUpper = _yUpper;
+            xIntersect = _xIntersect;
+            slopeInverse = _slopeInverse;
+        }
+    }
+    // bang edgeTable de ho tro to mau ScanLine
+    class edgeTable
+    {
+        Hashtable ht = new Hashtable();
+        int minKey = 99999, maxKey = -1;//key nho nhat va lon nhat ma co chua mot linked list cac edge
+
+        private bool isExtreme(MyPoint p1, MyPoint p2, MyPoint p3) // Kiem tra giao diem cua 2 canh co phai la cuc tri (giao diem o day la p2)
+        {
+            if ((p2.Y > p1.Y && p2.Y > p3.Y) || (p2.Y < p1.Y && p2.Y < p3.Y)) // p2 la diem chung cua 2 canh
+                return true;
+            return false;
+        }
+        private float calSlopeCoeff(MyPoint p1, MyPoint p2) // tinh he so goc cua mot canh
+        {
+            if (p2.X == p1.X)
+                return 0;
+            return ((float)(p2.Y - p1.Y)) / (p2.X - p1.X);
+        }
+        public Hashtable getEdgeTable() // Tra ve edge table
+        {
+            return ht;
+        }
+        public int getMinKey() // Tra ve minKey
+        {
+            return minKey;
+        }
+        public int getMaxKey() // Tra ve minKey
+        {
+            return maxKey;
+        }
+
+        public void storeEdges(List<MyPoint> pList) // luu thong tin tat ca cac canh(y_upper, x_intersect, inverse of slope) cua mot da giac vao bang bam ht
+        {
+            int size = pList.Count;
+            for (int i = 0; i < size; i++)
+            {
+                // ================================INIT==================================
+                // previous point, current point and next point
+                MyPoint prevPoint, curPoint, nextPoint;
+                // previous point: la diem lien truoc cua current point
+                if (i - 1 < 0)
+                    prevPoint = pList[size - 1];
+                else
+                    prevPoint = pList[i - 1];
+                // current point: la diem tai index i hien tai
+                curPoint = pList[i];
+                // next point: la diem lien sau cua current point
+                if (i + 1 > size - 1)
+                    nextPoint = pList[0];
+                else
+                    nextPoint = pList[i + 1];
+
+                // ==============================PROCESSING===============================
+                // Tinh slope
+                float slope = calSlopeCoeff(curPoint, nextPoint);// tinh he so goc
+                if (slope == 0 && curPoint.X != nextPoint.X) // Neu canh vuong goc Oy thi chay den vong lap tiep theo
+                    continue;
+
+                float slopeInverse = 0; // nghich dao do doc cua canh dang xet, default la 0 cho truong hop canh vuong goc voi Ox
+                if (slope != 0)
+                    slopeInverse = 1 / slope;
+
+                // Tinh yUpper
+                int yUpper;
+
+                if (nextPoint.Y > curPoint.Y) // xet toa do y cua dinh dau va dinh cuoi, cai nao lon hon se duoc chon
+                {
+                    yUpper = (int)nextPoint.Y;
+                    MyPoint nextNextPoint; // diem lien sau cua diem nextPoint
+                    if (i + 2 > size - 1) // (i+2) la index cua diem lien sau nextPoint, neu no vuot ra khoi do dai danh sach
+                        nextNextPoint = pList[i + 2 - size]; // thi coi nhu no se tro ve dau danh sach
+                    else // nguoc lai truy xuat binh thuong
+                        nextNextPoint = pList[i + 2];
+                    if (isExtreme(curPoint, nextPoint, nextNextPoint) == false) // Kiem tra co phai la cuc tri
+                        yUpper--;
+                }
+                else
+                {
+                    yUpper = (int)curPoint.Y;
+                    if (isExtreme(prevPoint, curPoint, nextPoint) == false)// Kiem tra co phai la cuc tri
+                        yUpper--;
+                }
+                if (yUpper > maxKey) // Neu thoa dieu kien nay thi cap nhat lai maxKey
+                    maxKey = yUpper - 1;
+
+                // Tinh xIntersect
+                float xIntersect = curPoint.X;
+                if (nextPoint.Y < curPoint.Y)// xet dinh dau va dinh cuoi cua canh, diem nao co y be hon thi x cua no se duoc chon lam x_intersect
+                    xIntersect = nextPoint.X;
+
+                //
+                edgeNode tmp = new edgeNode(yUpper, xIntersect, slopeInverse); // Luu cac thong tin vua tinh duoc vao bien tmp kieu edgeNode
+                int yMin = (int)curPoint.Y;// Tinh yMin, yMin duoc xem nhu la key de luu vao edgeTable
+                if (nextPoint.Y < yMin)
+                    yMin = (int)nextPoint.Y;
+                if (yMin < minKey) // Cap nhat lai minKey
+                    minKey = yMin;
+
+                if (ht.ContainsKey(yMin)) // Neu tai vi tri yMin trong edgeTable da ton tai mot linked list cac canh
+                {
+                    ((LinkedList<edgeNode>)ht[yMin]).AddLast(tmp); // Them vao phia sau cuar linked list
+                }
+                else // Neu chua
+                {
+                    LinkedList<edgeNode> eList = new LinkedList<edgeNode>();// Tao moi mot linked list va them no vao key yMin
+                    eList.AddLast(tmp);
+                    ht.Add(yMin, eList);
+                }
+            }
+        }
+    }
+
 }
